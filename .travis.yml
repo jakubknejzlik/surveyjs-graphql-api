@@ -1,0 +1,18 @@
+language: go
+
+branches:
+  only:
+  - master
+
+services:
+  - docker
+
+install:
+  - go get -d -v ./...
+  - go get github.com/mitchellh/gox
+
+script:
+  - make build tag push
+
+after_success:
+  - if  [ "${TRAVIS_TAG}" != "" ] && [ "${TRAVIS_GO_VERSION}" == "1.7" ];gox -output "dist/{{.Dir}}-{{.OS}}-{{.Arch}}";fi

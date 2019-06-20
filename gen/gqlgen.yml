@@ -1,0 +1,51 @@
+# Generated with graphql-orm
+
+schema:
+  - schema.graphql
+exec:
+  filename: generated.go
+  package: gen
+model:
+  filename: models_gen.go
+  package: gen
+resolver:
+  filename: resolver.go
+  type: Resolver
+  package: gen
+
+models:
+  
+  SurveyResultType:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyResultType
+    fields:
+      count:
+        resolver: true
+      items:
+        resolver: true
+  Survey:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.Survey
+    fields:
+      answers:
+        resolver: true
+  SurveyCreateInput:
+    model: "map[string]interface{}"
+  SurveyUpdateInput:
+    model: "map[string]interface{}"
+  
+  AnswerResultType:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.AnswerResultType
+    fields:
+      count:
+        resolver: true
+      items:
+        resolver: true
+  Answer:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.Answer
+    fields:
+      survey:
+        resolver: true
+  AnswerCreateInput:
+    model: "map[string]interface{}"
+  AnswerUpdateInput:
+    model: "map[string]interface{}"
+  

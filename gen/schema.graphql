@@ -1,0 +1,219 @@
+# This schema is generated, please don't update it manually
+
+scalar Time
+
+directive @relationship(inverse: String!) on FIELD_DEFINITION
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  survey(id: ID, q: String): Survey
+  surveys(offset: Int, limit: Int = 30, q: String, sort: [SurveySortType!], filter: SurveyFilterType): SurveyResultType
+  answer(id: ID, q: String): Answer
+  answers(offset: Int, limit: Int = 30, q: String, sort: [AnswerSortType!], filter: AnswerFilterType): AnswerResultType
+}
+
+type Mutation {
+  createSurvey(input: SurveyCreateInput!): Survey!
+  updateSurvey(id: ID!, input: SurveyUpdateInput!): Survey!
+  deleteSurvey(id: ID!): Survey!
+  createAnswer(input: AnswerCreateInput!): Answer!
+  updateAnswer(id: ID!, input: AnswerUpdateInput!): Answer!
+  deleteAnswer(id: ID!): Answer!
+}
+
+type Survey {
+  id: ID!
+  name: String
+  content: String
+  answers: [Answer!]! @relationship(inverse: "survey")
+  updatedAt: Time!
+  createdAt: Time!
+}
+
+type Answer {
+  id: ID!
+  userID: ID!
+  completed: Boolean
+  content: String
+  survey: Survey @relationship(inverse: "answers")
+  surveyId: ID
+  updatedAt: Time!
+  createdAt: Time!
+}
+
+input SurveyCreateInput {
+  id: ID
+  name: String
+  content: String
+  answersIds: [ID!]
+}
+
+input SurveyUpdateInput {
+  name: String
+  content: String
+  answersIds: [ID!]
+}
+
+enum SurveySortType {
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  CONTENT_ASC
+  CONTENT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+}
+
+input SurveyFilterType {
+  AND: [SurveyFilterType!]
+  OR: [SurveyFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  name: String
+  name_ne: String
+  name_gt: String
+  name_lt: String
+  name_gte: String
+  name_lte: String
+  name_in: [String!]
+  name_like: String
+  name_prefix: String
+  name_suffix: String
+  content: String
+  content_ne: String
+  content_gt: String
+  content_lt: String
+  content_gte: String
+  content_lte: String
+  content_in: [String!]
+  content_like: String
+  content_prefix: String
+  content_suffix: String
+  updatedAt: Time
+  updatedAt_ne: Time
+  updatedAt_gt: Time
+  updatedAt_lt: Time
+  updatedAt_gte: Time
+  updatedAt_lte: Time
+  updatedAt_in: [Time!]
+  createdAt: Time
+  createdAt_ne: Time
+  createdAt_gt: Time
+  createdAt_lt: Time
+  createdAt_gte: Time
+  createdAt_lte: Time
+  createdAt_in: [Time!]
+  answers: AnswerFilterType
+}
+
+type SurveyResultType {
+  items: [Survey!]!
+  count: Int!
+}
+
+input AnswerCreateInput {
+  id: ID
+  userID: ID!
+  completed: Boolean
+  content: String
+  surveyId: ID
+}
+
+input AnswerUpdateInput {
+  userID: ID
+  completed: Boolean
+  content: String
+  surveyId: ID
+}
+
+enum AnswerSortType {
+  ID_ASC
+  ID_DESC
+  USER_ID_ASC
+  USER_ID_DESC
+  COMPLETED_ASC
+  COMPLETED_DESC
+  CONTENT_ASC
+  CONTENT_DESC
+  SURVEY_ID_ASC
+  SURVEY_ID_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+}
+
+input AnswerFilterType {
+  AND: [AnswerFilterType!]
+  OR: [AnswerFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  userID: ID
+  userID_ne: ID
+  userID_gt: ID
+  userID_lt: ID
+  userID_gte: ID
+  userID_lte: ID
+  userID_in: [ID!]
+  completed: Boolean
+  completed_ne: Boolean
+  completed_gt: Boolean
+  completed_lt: Boolean
+  completed_gte: Boolean
+  completed_lte: Boolean
+  completed_in: [Boolean!]
+  content: String
+  content_ne: String
+  content_gt: String
+  content_lt: String
+  content_gte: String
+  content_lte: String
+  content_in: [String!]
+  content_like: String
+  content_prefix: String
+  content_suffix: String
+  surveyId: ID
+  surveyId_ne: ID
+  surveyId_gt: ID
+  surveyId_lt: ID
+  surveyId_gte: ID
+  surveyId_lte: ID
+  surveyId_in: [ID!]
+  updatedAt: Time
+  updatedAt_ne: Time
+  updatedAt_gt: Time
+  updatedAt_lt: Time
+  updatedAt_gte: Time
+  updatedAt_lte: Time
+  updatedAt_in: [Time!]
+  createdAt: Time
+  createdAt_ne: Time
+  createdAt_gt: Time
+  createdAt_lt: Time
+  createdAt_gte: Time
+  createdAt_lte: Time
+  createdAt_in: [Time!]
+  survey: SurveyFilterType
+}
+
+type AnswerResultType {
+  items: [Answer!]!
+  count: Int!
+}

@@ -1,0 +1,14 @@
+type Survey {
+  name: String
+  content: String
+
+  answers: [Answer!]! @relationship(inverse: "survey")
+}
+
+type Answer {
+  userID: ID!
+  completed: Boolean
+  content: String
+
+  survey: Survey @relationship(inverse: "answers")
+}
