@@ -1,4 +1,4 @@
-FROM golang as builder
+FROM golang:1.12 as builder
 WORKDIR /go/src/github.com/jakubknejzlik/surveyjs-graphql-api
 COPY . .
 RUN go get ./... 
