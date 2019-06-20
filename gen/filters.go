@@ -117,7 +117,7 @@ func (f *SurveyFilterType) WhereContent(aliasPrefix string) (conditions []string
 	}
 	if f.NameLike != nil {
 		conditions = append(conditions, aliasPrefix+"name LIKE ?")
-		values = append(values, strings.ReplaceAll(strings.ReplaceAll(*f.NameLike, "?", "_"), "*", "%"))
+		values = append(values, strings.Replace(strings.Replace(*f.NameLike, "?", "_", -1), "*", "%", -1))
 	}
 	if f.NamePrefix != nil {
 		conditions = append(conditions, aliasPrefix+"name LIKE ?")
@@ -158,7 +158,7 @@ func (f *SurveyFilterType) WhereContent(aliasPrefix string) (conditions []string
 	}
 	if f.ContentLike != nil {
 		conditions = append(conditions, aliasPrefix+"content LIKE ?")
-		values = append(values, strings.ReplaceAll(strings.ReplaceAll(*f.ContentLike, "?", "_"), "*", "%"))
+		values = append(values, strings.Replace(strings.Replace(*f.ContentLike, "?", "_", -1), "*", "%", -1))
 	}
 	if f.ContentPrefix != nil {
 		conditions = append(conditions, aliasPrefix+"content LIKE ?")
@@ -399,7 +399,7 @@ func (f *AnswerFilterType) WhereContent(aliasPrefix string) (conditions []string
 	}
 	if f.ContentLike != nil {
 		conditions = append(conditions, aliasPrefix+"content LIKE ?")
-		values = append(values, strings.ReplaceAll(strings.ReplaceAll(*f.ContentLike, "?", "_"), "*", "%"))
+		values = append(values, strings.Replace(strings.Replace(*f.ContentLike, "?", "_", -1), "*", "%", -1))
 	}
 	if f.ContentPrefix != nil {
 		conditions = append(conditions, aliasPrefix+"content LIKE ?")
