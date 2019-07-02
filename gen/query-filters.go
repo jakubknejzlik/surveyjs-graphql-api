@@ -38,7 +38,6 @@ func (qf *SurveyQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	if len(fields) == 0 {
 		return nil
 	}
-	aliasPrefix := alias + "."
 
 	fieldsMap := map[string]*ast.Field{}
 	for _, f := range fields {
@@ -46,12 +45,12 @@ func (qf *SurveyQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	}
 
 	if _, ok := fieldsMap["name"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]sname LIKE ? OR %[1]sname LIKE ?", aliasPrefix))
+		*ors = append(*ors, fmt.Sprintf("%[1]sname LIKE ? OR %[1]sname LIKE ?", alias+"."))
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
 	if _, ok := fieldsMap["content"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]scontent LIKE ? OR %[1]scontent LIKE ?", aliasPrefix))
+		*ors = append(*ors, fmt.Sprintf("%[1]scontent LIKE ? OR %[1]scontent LIKE ?", alias+"."))
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
@@ -104,7 +103,6 @@ func (qf *AnswerQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	if len(fields) == 0 {
 		return nil
 	}
-	aliasPrefix := alias + "."
 
 	fieldsMap := map[string]*ast.Field{}
 	for _, f := range fields {
@@ -112,7 +110,7 @@ func (qf *AnswerQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	}
 
 	if _, ok := fieldsMap["content"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]scontent LIKE ? OR %[1]scontent LIKE ?", aliasPrefix))
+		*ors = append(*ors, fmt.Sprintf("%[1]scontent LIKE ? OR %[1]scontent LIKE ?", alias+"."))
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 

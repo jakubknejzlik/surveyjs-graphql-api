@@ -227,6 +227,64 @@ func (f *SurveyFilterType) WhereContent(aliasPrefix string) (conditions []string
 		values = append(values, f.CreatedAtIn)
 	}
 
+	if f.UpdatedBy != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy = ?")
+		values = append(values, f.UpdatedBy)
+	}
+	if f.UpdatedByNe != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy != ?")
+		values = append(values, f.UpdatedByNe)
+	}
+	if f.UpdatedByGt != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy > ?")
+		values = append(values, f.UpdatedByGt)
+	}
+	if f.UpdatedByLt != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy < ?")
+		values = append(values, f.UpdatedByLt)
+	}
+	if f.UpdatedByGte != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy >= ?")
+		values = append(values, f.UpdatedByGte)
+	}
+	if f.UpdatedByLte != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy <= ?")
+		values = append(values, f.UpdatedByLte)
+	}
+	if f.UpdatedByIn != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy IN (?)")
+		values = append(values, f.UpdatedByIn)
+	}
+
+	if f.CreatedBy != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy = ?")
+		values = append(values, f.CreatedBy)
+	}
+	if f.CreatedByNe != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy != ?")
+		values = append(values, f.CreatedByNe)
+	}
+	if f.CreatedByGt != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy > ?")
+		values = append(values, f.CreatedByGt)
+	}
+	if f.CreatedByLt != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy < ?")
+		values = append(values, f.CreatedByLt)
+	}
+	if f.CreatedByGte != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy >= ?")
+		values = append(values, f.CreatedByGte)
+	}
+	if f.CreatedByLte != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy <= ?")
+		values = append(values, f.CreatedByLte)
+	}
+	if f.CreatedByIn != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy IN (?)")
+		values = append(values, f.CreatedByIn)
+	}
+
 	return
 }
 
@@ -495,6 +553,64 @@ func (f *AnswerFilterType) WhereContent(aliasPrefix string) (conditions []string
 	if f.CreatedAtIn != nil {
 		conditions = append(conditions, aliasPrefix+"createdAt IN (?)")
 		values = append(values, f.CreatedAtIn)
+	}
+
+	if f.UpdatedBy != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy = ?")
+		values = append(values, f.UpdatedBy)
+	}
+	if f.UpdatedByNe != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy != ?")
+		values = append(values, f.UpdatedByNe)
+	}
+	if f.UpdatedByGt != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy > ?")
+		values = append(values, f.UpdatedByGt)
+	}
+	if f.UpdatedByLt != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy < ?")
+		values = append(values, f.UpdatedByLt)
+	}
+	if f.UpdatedByGte != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy >= ?")
+		values = append(values, f.UpdatedByGte)
+	}
+	if f.UpdatedByLte != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy <= ?")
+		values = append(values, f.UpdatedByLte)
+	}
+	if f.UpdatedByIn != nil {
+		conditions = append(conditions, aliasPrefix+"updatedBy IN (?)")
+		values = append(values, f.UpdatedByIn)
+	}
+
+	if f.CreatedBy != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy = ?")
+		values = append(values, f.CreatedBy)
+	}
+	if f.CreatedByNe != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy != ?")
+		values = append(values, f.CreatedByNe)
+	}
+	if f.CreatedByGt != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy > ?")
+		values = append(values, f.CreatedByGt)
+	}
+	if f.CreatedByLt != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy < ?")
+		values = append(values, f.CreatedByLt)
+	}
+	if f.CreatedByGte != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy >= ?")
+		values = append(values, f.CreatedByGte)
+	}
+	if f.CreatedByLte != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy <= ?")
+		values = append(values, f.CreatedByLte)
+	}
+	if f.CreatedByIn != nil {
+		conditions = append(conditions, aliasPrefix+"createdBy IN (?)")
+		values = append(values, f.CreatedByIn)
 	}
 
 	return

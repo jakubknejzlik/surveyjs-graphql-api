@@ -2,73 +2,84 @@ package gen
 
 import (
 	"context"
-	"reflect"
+	"encoding/json"
+	"fmt"
 	"time"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/novacloudcz/graphql-orm/events"
 	"github.com/novacloudcz/graphql-orm/resolvers"
 	uuid "github.com/satori/go.uuid"
 )
 
-func ToTimeHookFunc() mapstructure.DecodeHookFunc {
-	return func(
-		f reflect.Type,
-		t reflect.Type,
-		data interface{}) (interface{}, error) {
-		if t != reflect.TypeOf(time.Time{}) {
-			return data, nil
-		}
-
-		switch f.Kind() {
-		case reflect.String:
-			return time.Parse(time.RFC3339, data.(string))
-		case reflect.Float64:
-			return time.Unix(0, int64(data.(float64))*int64(time.Millisecond)), nil
-		case reflect.Int64:
-			return time.Unix(0, data.(int64)*int64(time.Millisecond)), nil
-		default:
-			return data, nil
-		}
-		// Convert it by parsing
-	}
+func getPrincipalID(ctx context.Context) *string {
+	v, _ := ctx.Value(KeyPrincipalID).(*string)
+	return v
 }
 
-type Resolver struct {
-	DB *DB
+type GeneratedResolver struct {
+	DB              *DB
+	EventController *events.EventController
 }
 
-func (r *Resolver) Mutation() MutationResolver {
-	return &mutationResolver{r}
+func (r *GeneratedResolver) Mutation() MutationResolver {
+	return &GeneratedMutationResolver{r}
 }
-func (r *Resolver) Query() QueryResolver {
-	return &queryResolver{r}
-}
-
-func (r *Resolver) SurveyResultType() SurveyResultTypeResolver {
-	return &surveyResultTypeResolver{r}
+func (r *GeneratedResolver) Query() QueryResolver {
+	return &GeneratedQueryResolver{r}
 }
 
-func (r *Resolver) Survey() SurveyResolver {
-	return &surveyResolver{r}
+func (r *GeneratedResolver) SurveyResultType() SurveyResultTypeResolver {
+	return &GeneratedSurveyResultTypeResolver{r}
 }
 
-func (r *Resolver) AnswerResultType() AnswerResultTypeResolver {
-	return &answerResultTypeResolver{r}
+func (r *GeneratedResolver) Survey() SurveyResolver {
+	return &GeneratedSurveyResolver{r}
 }
 
-func (r *Resolver) Answer() AnswerResolver {
-	return &answerResolver{r}
+func (r *GeneratedResolver) AnswerResultType() AnswerResultTypeResolver {
+	return &GeneratedAnswerResultTypeResolver{r}
 }
 
-type mutationResolver struct{ *Resolver }
+func (r *GeneratedResolver) Answer() AnswerResolver {
+	return &GeneratedAnswerResolver{r}
+}
 
-func (r *mutationResolver) CreateSurvey(ctx context.Context, input map[string]interface{}) (item *Survey, err error) {
-	ID, ok := input["id"].(string)
-	if !ok || ID == "" {
-		ID = uuid.Must(uuid.NewV4()).String()
-	}
-	item = &Survey{ID: ID}
+type GeneratedMutationResolver struct{ *GeneratedResolver }
+
+func (r *GeneratedMutationResolver) CreateSurvey(ctx context.Context, input map[string]interface{}) (item *Survey, err error) {
+	principalID := getPrincipalID(ctx)
+	now := time.Now()
+	item = &Survey{ID: uuid.Must(uuid.NewV4()).String(), CreatedAt: now, CreatedBy: principalID}
 	tx := r.DB.db.Begin()
+
+	event := events.NewEvent(events.EventMetadata{
+		Type:        events.EventTypeCreated,
+		Entity:      "Survey",
+		EntityID:    item.ID,
+		Date:        now,
+		PrincipalID: principalID,
+	})
+
+	var changes SurveyChanges
+	err = ApplyChanges(input, &changes)
+	if err != nil {
+		return
+	}
+
+	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+		item.ID = changes.ID
+		event.AddNewValue("id", changes.ID)
+	}
+
+	if _, ok := input["name"]; ok && (item.Name != changes.Name) && (item.Name == nil || changes.Name == nil || *item.Name != *changes.Name) {
+		item.Name = changes.Name
+		event.AddNewValue("name", changes.Name)
+	}
+
+	if _, ok := input["content"]; ok && (item.Content != changes.Content) && (item.Content == nil || changes.Content == nil || *item.Content != *changes.Content) {
+		item.Content = changes.Content
+		event.AddNewValue("content", changes.Content)
+	}
 
 	if ids, ok := input["answersIds"].([]interface{}); ok {
 		items := []Answer{}
@@ -77,37 +88,60 @@ func (r *mutationResolver) CreateSurvey(ctx context.Context, input map[string]in
 		association.Replace(items)
 	}
 
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			ToTimeHookFunc()),
-		Result: item,
-	})
-	if err != nil {
-		tx.Rollback()
-		return
-	}
-
-	err = decoder.Decode(input)
-	if err != nil {
-		tx.Rollback()
-		return
-	}
 	err = tx.Create(item).Error
 	if err != nil {
 		tx.Rollback()
 		return
 	}
 	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	if len(event.Changes) > 0 {
+		err = r.EventController.SendEvent(ctx, &event)
+	}
+
 	return
 }
-func (r *mutationResolver) UpdateSurvey(ctx context.Context, id string, input map[string]interface{}) (item *Survey, err error) {
+func (r *GeneratedMutationResolver) UpdateSurvey(ctx context.Context, id string, input map[string]interface{}) (item *Survey, err error) {
+	principalID := getPrincipalID(ctx)
 	item = &Survey{}
+	now := time.Now()
 	tx := r.DB.db.Begin()
+
+	event := events.NewEvent(events.EventMetadata{
+		Type:        events.EventTypeCreated,
+		Entity:      "Survey",
+		EntityID:    item.ID,
+		Date:        now,
+		PrincipalID: principalID,
+	})
+
+	var changes SurveyChanges
+	err = ApplyChanges(input, &changes)
+	if err != nil {
+		return
+	}
 
 	err = resolvers.GetItem(ctx, tx, item, &id)
 	if err != nil {
 		return
+	}
+
+	item.UpdatedBy = principalID
+
+	if _, ok := input["name"]; ok && (item.Name != changes.Name) && (item.Name == nil || changes.Name == nil || *item.Name != *changes.Name) {
+		event.AddOldValue("name", item.Name)
+		event.AddNewValue("name", changes.Name)
+		item.Name = changes.Name
+	}
+
+	if _, ok := input["content"]; ok && (item.Content != changes.Content) && (item.Content == nil || changes.Content == nil || *item.Content != *changes.Content) {
+		event.AddOldValue("content", item.Content)
+		event.AddNewValue("content", changes.Content)
+		item.Content = changes.Content
 	}
 
 	if ids, ok := input["answersIds"].([]interface{}); ok {
@@ -117,31 +151,26 @@ func (r *mutationResolver) UpdateSurvey(ctx context.Context, id string, input ma
 		association.Replace(items)
 	}
 
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			ToTimeHookFunc()),
-		Result: item,
-	})
-	if err != nil {
-		tx.Rollback()
-		return
-	}
-
-	err = decoder.Decode(input)
-	if err != nil {
-		tx.Rollback()
-		return
-	}
 	err = tx.Save(item).Error
 	if err != nil {
 		tx.Rollback()
 		return
 	}
 	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	if len(event.Changes) > 0 {
+		err = r.EventController.SendEvent(ctx, &event)
+		data, _ := json.Marshal(event)
+		fmt.Println("??", string(data))
+	}
+
 	return
 }
-func (r *mutationResolver) DeleteSurvey(ctx context.Context, id string) (item *Survey, err error) {
+func (r *GeneratedMutationResolver) DeleteSurvey(ctx context.Context, id string) (item *Survey, err error) {
 	item = &Survey{}
 	err = resolvers.GetItem(ctx, r.DB.Query(), item, &id)
 	if err != nil {
@@ -153,72 +182,139 @@ func (r *mutationResolver) DeleteSurvey(ctx context.Context, id string) (item *S
 	return
 }
 
-func (r *mutationResolver) CreateAnswer(ctx context.Context, input map[string]interface{}) (item *Answer, err error) {
-	ID, ok := input["id"].(string)
-	if !ok || ID == "" {
-		ID = uuid.Must(uuid.NewV4()).String()
-	}
-	item = &Answer{ID: ID}
+func (r *GeneratedMutationResolver) CreateAnswer(ctx context.Context, input map[string]interface{}) (item *Answer, err error) {
+	principalID := getPrincipalID(ctx)
+	now := time.Now()
+	item = &Answer{ID: uuid.Must(uuid.NewV4()).String(), CreatedAt: now, CreatedBy: principalID}
 	tx := r.DB.db.Begin()
 
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			ToTimeHookFunc()),
-		Result: item,
+	event := events.NewEvent(events.EventMetadata{
+		Type:        events.EventTypeCreated,
+		Entity:      "Answer",
+		EntityID:    item.ID,
+		Date:        now,
+		PrincipalID: principalID,
 	})
+
+	var changes AnswerChanges
+	err = ApplyChanges(input, &changes)
 	if err != nil {
-		tx.Rollback()
 		return
 	}
 
-	err = decoder.Decode(input)
-	if err != nil {
-		tx.Rollback()
-		return
+	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+		item.ID = changes.ID
+		event.AddNewValue("id", changes.ID)
 	}
+
+	if _, ok := input["userID"]; ok && (item.UserID != changes.UserID) {
+		item.UserID = changes.UserID
+		event.AddNewValue("userID", changes.UserID)
+	}
+
+	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
+		item.Completed = changes.Completed
+		event.AddNewValue("completed", changes.Completed)
+	}
+
+	if _, ok := input["content"]; ok && (item.Content != changes.Content) && (item.Content == nil || changes.Content == nil || *item.Content != *changes.Content) {
+		item.Content = changes.Content
+		event.AddNewValue("content", changes.Content)
+	}
+
+	if _, ok := input["surveyId"]; ok && (item.SurveyID != changes.SurveyID) && (item.SurveyID == nil || changes.SurveyID == nil || *item.SurveyID != *changes.SurveyID) {
+		item.SurveyID = changes.SurveyID
+		event.AddNewValue("surveyId", changes.SurveyID)
+	}
+
 	err = tx.Create(item).Error
 	if err != nil {
 		tx.Rollback()
 		return
 	}
 	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	if len(event.Changes) > 0 {
+		err = r.EventController.SendEvent(ctx, &event)
+	}
+
 	return
 }
-func (r *mutationResolver) UpdateAnswer(ctx context.Context, id string, input map[string]interface{}) (item *Answer, err error) {
+func (r *GeneratedMutationResolver) UpdateAnswer(ctx context.Context, id string, input map[string]interface{}) (item *Answer, err error) {
+	principalID := getPrincipalID(ctx)
 	item = &Answer{}
+	now := time.Now()
 	tx := r.DB.db.Begin()
+
+	event := events.NewEvent(events.EventMetadata{
+		Type:        events.EventTypeCreated,
+		Entity:      "Answer",
+		EntityID:    item.ID,
+		Date:        now,
+		PrincipalID: principalID,
+	})
+
+	var changes AnswerChanges
+	err = ApplyChanges(input, &changes)
+	if err != nil {
+		return
+	}
 
 	err = resolvers.GetItem(ctx, tx, item, &id)
 	if err != nil {
 		return
 	}
 
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			ToTimeHookFunc()),
-		Result: item,
-	})
-	if err != nil {
-		tx.Rollback()
-		return
+	item.UpdatedBy = principalID
+
+	if _, ok := input["userID"]; ok && (item.UserID != changes.UserID) {
+		event.AddOldValue("userID", item.UserID)
+		event.AddNewValue("userID", changes.UserID)
+		item.UserID = changes.UserID
 	}
 
-	err = decoder.Decode(input)
-	if err != nil {
-		tx.Rollback()
-		return
+	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
+		event.AddOldValue("completed", item.Completed)
+		event.AddNewValue("completed", changes.Completed)
+		item.Completed = changes.Completed
 	}
+
+	if _, ok := input["content"]; ok && (item.Content != changes.Content) && (item.Content == nil || changes.Content == nil || *item.Content != *changes.Content) {
+		event.AddOldValue("content", item.Content)
+		event.AddNewValue("content", changes.Content)
+		item.Content = changes.Content
+	}
+
+	if _, ok := input["surveyId"]; ok && (item.SurveyID != changes.SurveyID) && (item.SurveyID == nil || changes.SurveyID == nil || *item.SurveyID != *changes.SurveyID) {
+		event.AddOldValue("surveyId", item.SurveyID)
+		event.AddNewValue("surveyId", changes.SurveyID)
+		item.SurveyID = changes.SurveyID
+	}
+
 	err = tx.Save(item).Error
 	if err != nil {
 		tx.Rollback()
 		return
 	}
 	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	if len(event.Changes) > 0 {
+		err = r.EventController.SendEvent(ctx, &event)
+		data, _ := json.Marshal(event)
+		fmt.Println("??", string(data))
+	}
+
 	return
 }
-func (r *mutationResolver) DeleteAnswer(ctx context.Context, id string) (item *Answer, err error) {
+func (r *GeneratedMutationResolver) DeleteAnswer(ctx context.Context, id string) (item *Answer, err error) {
 	item = &Answer{}
 	err = resolvers.GetItem(ctx, r.DB.Query(), item, &id)
 	if err != nil {
@@ -230,14 +326,14 @@ func (r *mutationResolver) DeleteAnswer(ctx context.Context, id string) (item *A
 	return
 }
 
-type queryResolver struct{ *Resolver }
+type GeneratedQueryResolver struct{ *GeneratedResolver }
 
-func (r *queryResolver) Survey(ctx context.Context, id *string, q *string) (*Survey, error) {
+func (r *GeneratedQueryResolver) Survey(ctx context.Context, id *string, q *string) (*Survey, error) {
 	t := Survey{}
 	err := resolvers.GetItem(ctx, r.DB.Query(), &t, id)
 	return &t, err
 }
-func (r *queryResolver) Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error) {
+func (r *GeneratedQueryResolver) Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error) {
 	_sort := []resolvers.EntitySort{}
 	for _, s := range sort {
 		_sort = append(_sort, s)
@@ -254,20 +350,20 @@ func (r *queryResolver) Surveys(ctx context.Context, offset *int, limit *int, q 
 	}, nil
 }
 
-type surveyResultTypeResolver struct{ *Resolver }
+type GeneratedSurveyResultTypeResolver struct{ *GeneratedResolver }
 
-func (r *surveyResultTypeResolver) Items(ctx context.Context, obj *SurveyResultType) (items []*Survey, err error) {
+func (r *GeneratedSurveyResultTypeResolver) Items(ctx context.Context, obj *SurveyResultType) (items []*Survey, err error) {
 	err = obj.GetItems(ctx, r.DB.db, "surveys", &items)
 	return
 }
 
-func (r *surveyResultTypeResolver) Count(ctx context.Context, obj *SurveyResultType) (count int, err error) {
+func (r *GeneratedSurveyResultTypeResolver) Count(ctx context.Context, obj *SurveyResultType) (count int, err error) {
 	return obj.GetCount(ctx, r.DB.db, &Survey{})
 }
 
-type surveyResolver struct{ *Resolver }
+type GeneratedSurveyResolver struct{ *GeneratedResolver }
 
-func (r *surveyResolver) Answers(ctx context.Context, obj *Survey) (res []*Answer, err error) {
+func (r *GeneratedSurveyResolver) Answers(ctx context.Context, obj *Survey) (res []*Answer, err error) {
 
 	items := []*Answer{}
 	err = r.DB.Query().Model(obj).Related(&items, "Answers").Error
@@ -276,12 +372,12 @@ func (r *surveyResolver) Answers(ctx context.Context, obj *Survey) (res []*Answe
 	return
 }
 
-func (r *queryResolver) Answer(ctx context.Context, id *string, q *string) (*Answer, error) {
+func (r *GeneratedQueryResolver) Answer(ctx context.Context, id *string, q *string) (*Answer, error) {
 	t := Answer{}
 	err := resolvers.GetItem(ctx, r.DB.Query(), &t, id)
 	return &t, err
 }
-func (r *queryResolver) Answers(ctx context.Context, offset *int, limit *int, q *string, sort []AnswerSortType, filter *AnswerFilterType) (*AnswerResultType, error) {
+func (r *GeneratedQueryResolver) Answers(ctx context.Context, offset *int, limit *int, q *string, sort []AnswerSortType, filter *AnswerFilterType) (*AnswerResultType, error) {
 	_sort := []resolvers.EntitySort{}
 	for _, s := range sort {
 		_sort = append(_sort, s)
@@ -298,20 +394,20 @@ func (r *queryResolver) Answers(ctx context.Context, offset *int, limit *int, q 
 	}, nil
 }
 
-type answerResultTypeResolver struct{ *Resolver }
+type GeneratedAnswerResultTypeResolver struct{ *GeneratedResolver }
 
-func (r *answerResultTypeResolver) Items(ctx context.Context, obj *AnswerResultType) (items []*Answer, err error) {
+func (r *GeneratedAnswerResultTypeResolver) Items(ctx context.Context, obj *AnswerResultType) (items []*Answer, err error) {
 	err = obj.GetItems(ctx, r.DB.db, "answers", &items)
 	return
 }
 
-func (r *answerResultTypeResolver) Count(ctx context.Context, obj *AnswerResultType) (count int, err error) {
+func (r *GeneratedAnswerResultTypeResolver) Count(ctx context.Context, obj *AnswerResultType) (count int, err error) {
 	return obj.GetCount(ctx, r.DB.db, &Answer{})
 }
 
-type answerResolver struct{ *Resolver }
+type GeneratedAnswerResolver struct{ *GeneratedResolver }
 
-func (r *answerResolver) Survey(ctx context.Context, obj *Answer) (res *Survey, err error) {
+func (r *GeneratedAnswerResolver) Survey(ctx context.Context, obj *Answer) (res *Survey, err error) {
 
 	item := Survey{}
 	_res := r.DB.Query().Model(obj).Related(&item, "Survey")

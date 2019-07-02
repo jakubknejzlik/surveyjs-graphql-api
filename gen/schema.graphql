@@ -30,8 +30,10 @@ type Survey {
   name: String
   content: String
   answers: [Answer!]! @relationship(inverse: "survey")
-  updatedAt: Time!
+  updatedAt: Time
   createdAt: Time!
+  updatedBy: ID
+  createdBy: ID
 }
 
 type Answer {
@@ -41,8 +43,10 @@ type Answer {
   content: String
   survey: Survey @relationship(inverse: "answers")
   surveyId: ID
-  updatedAt: Time!
+  updatedAt: Time
   createdAt: Time!
+  updatedBy: ID
+  createdBy: ID
 }
 
 input SurveyCreateInput {
@@ -69,6 +73,10 @@ enum SurveySortType {
   UPDATED_AT_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  UPDATED_BY_ASC
+  UPDATED_BY_DESC
+  CREATED_BY_ASC
+  CREATED_BY_DESC
 }
 
 input SurveyFilterType {
@@ -115,6 +123,20 @@ input SurveyFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
   answers: AnswerFilterType
 }
 
@@ -153,6 +175,10 @@ enum AnswerSortType {
   UPDATED_AT_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  UPDATED_BY_ASC
+  UPDATED_BY_DESC
+  CREATED_BY_ASC
+  CREATED_BY_DESC
 }
 
 input AnswerFilterType {
@@ -210,6 +236,20 @@ input AnswerFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
   survey: SurveyFilterType
 }
 

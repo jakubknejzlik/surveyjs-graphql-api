@@ -52,10 +52,12 @@ type ComplexityRoot struct {
 		Completed func(childComplexity int) int
 		Content   func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Survey    func(childComplexity int) int
 		SurveyID  func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
+		UpdatedBy func(childComplexity int) int
 		UserID    func(childComplexity int) int
 	}
 
@@ -84,9 +86,11 @@ type ComplexityRoot struct {
 		Answers   func(childComplexity int) int
 		Content   func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
+		UpdatedBy func(childComplexity int) int
 	}
 
 	SurveyResultType struct {
@@ -160,6 +164,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Answer.CreatedAt(childComplexity), true
 
+	case "Answer.createdBy":
+		if e.complexity.Answer.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Answer.CreatedBy(childComplexity), true
+
 	case "Answer.id":
 		if e.complexity.Answer.ID == nil {
 			break
@@ -187,6 +198,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Answer.UpdatedAt(childComplexity), true
+
+	case "Answer.updatedBy":
+		if e.complexity.Answer.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Answer.UpdatedBy(childComplexity), true
 
 	case "Answer.userID":
 		if e.complexity.Answer.UserID == nil {
@@ -350,6 +368,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Survey.CreatedAt(childComplexity), true
 
+	case "Survey.createdBy":
+		if e.complexity.Survey.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Survey.CreatedBy(childComplexity), true
+
 	case "Survey.id":
 		if e.complexity.Survey.ID == nil {
 			break
@@ -370,6 +395,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Survey.UpdatedAt(childComplexity), true
+
+	case "Survey.updatedBy":
+		if e.complexity.Survey.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Survey.UpdatedBy(childComplexity), true
 
 	case "SurveyResultType.count":
 		if e.complexity.SurveyResultType.Count == nil {
@@ -512,8 +544,10 @@ type Survey {
   name: String
   content: String
   answers: [Answer!]! @relationship(inverse: "survey")
-  updatedAt: Time!
+  updatedAt: Time
   createdAt: Time!
+  updatedBy: ID
+  createdBy: ID
 }
 
 type Answer {
@@ -523,8 +557,10 @@ type Answer {
   content: String
   survey: Survey @relationship(inverse: "answers")
   surveyId: ID
-  updatedAt: Time!
+  updatedAt: Time
   createdAt: Time!
+  updatedBy: ID
+  createdBy: ID
 }
 
 input SurveyCreateInput {
@@ -551,6 +587,10 @@ enum SurveySortType {
   UPDATED_AT_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  UPDATED_BY_ASC
+  UPDATED_BY_DESC
+  CREATED_BY_ASC
+  CREATED_BY_DESC
 }
 
 input SurveyFilterType {
@@ -597,6 +637,20 @@ input SurveyFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
   answers: AnswerFilterType
 }
 
@@ -635,6 +689,10 @@ enum AnswerSortType {
   UPDATED_AT_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  UPDATED_BY_ASC
+  UPDATED_BY_DESC
+  CREATED_BY_ASC
+  CREATED_BY_DESC
 }
 
 input AnswerFilterType {
@@ -692,6 +750,20 @@ input AnswerFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
   survey: SurveyFilterType
 }
 
@@ -1168,15 +1240,12 @@ func (ec *executionContext) _Answer_updatedAt(ctx context.Context, field graphql
 		return obj.UpdatedAt, nil
 	})
 	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Answer_createdAt(ctx context.Context, field graphql.CollectedField, obj *Answer) graphql.Marshaler {
@@ -1204,6 +1273,54 @@ func (ec *executionContext) _Answer_createdAt(ctx context.Context, field graphql
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Answer_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Answer) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Answer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Answer_createdBy(ctx context.Context, field graphql.CollectedField, obj *Answer) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Answer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _AnswerResultType_items(ctx context.Context, field graphql.CollectedField, obj *AnswerResultType) graphql.Marshaler {
@@ -1761,15 +1878,12 @@ func (ec *executionContext) _Survey_updatedAt(ctx context.Context, field graphql
 		return obj.UpdatedAt, nil
 	})
 	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Survey_createdAt(ctx context.Context, field graphql.CollectedField, obj *Survey) graphql.Marshaler {
@@ -1797,6 +1911,54 @@ func (ec *executionContext) _Survey_createdAt(ctx context.Context, field graphql
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Survey_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Survey) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Survey",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Survey_createdBy(ctx context.Context, field graphql.CollectedField, obj *Survey) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Survey",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SurveyResultType_items(ctx context.Context, field graphql.CollectedField, obj *SurveyResultType) graphql.Marshaler {
@@ -3014,6 +3176,90 @@ func (ec *executionContext) unmarshalInputAnswerFilterType(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "updatedBy":
+			var err error
+			it.UpdatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_ne":
+			var err error
+			it.UpdatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_gt":
+			var err error
+			it.UpdatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_lt":
+			var err error
+			it.UpdatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_gte":
+			var err error
+			it.UpdatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_lte":
+			var err error
+			it.UpdatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_in":
+			var err error
+			it.UpdatedByIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy":
+			var err error
+			it.CreatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_ne":
+			var err error
+			it.CreatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_gt":
+			var err error
+			it.CreatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_lt":
+			var err error
+			it.CreatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_gte":
+			var err error
+			it.CreatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_lte":
+			var err error
+			it.CreatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_in":
+			var err error
+			it.CreatedByIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "survey":
 			var err error
 			it.Survey, err = ec.unmarshalOSurveyFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyFilterType(ctx, v)
@@ -3290,6 +3536,90 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "updatedBy":
+			var err error
+			it.UpdatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_ne":
+			var err error
+			it.UpdatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_gt":
+			var err error
+			it.UpdatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_lt":
+			var err error
+			it.UpdatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_gte":
+			var err error
+			it.UpdatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_lte":
+			var err error
+			it.UpdatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_in":
+			var err error
+			it.UpdatedByIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy":
+			var err error
+			it.CreatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_ne":
+			var err error
+			it.CreatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_gt":
+			var err error
+			it.CreatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_lt":
+			var err error
+			it.CreatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_gte":
+			var err error
+			it.CreatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_lte":
+			var err error
+			it.CreatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy_in":
+			var err error
+			it.CreatedByIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "answers":
 			var err error
 			it.Answers, err = ec.unmarshalOAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, v)
@@ -3350,14 +3680,15 @@ func (ec *executionContext) _Answer(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Answer_surveyId(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Answer_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "createdAt":
 			out.Values[i] = ec._Answer_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "updatedBy":
+			out.Values[i] = ec._Answer_updatedBy(ctx, field, obj)
+		case "createdBy":
+			out.Values[i] = ec._Answer_createdBy(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3585,14 +3916,15 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 			})
 		case "updatedAt":
 			out.Values[i] = ec._Survey_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "createdAt":
 			out.Values[i] = ec._Survey_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "updatedBy":
+			out.Values[i] = ec._Survey_updatedBy(ctx, field, obj)
+		case "createdBy":
+			out.Values[i] = ec._Survey_createdBy(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -64,6 +64,20 @@ type AnswerFilterType struct {
 	CreatedAtGte  *time.Time          `json:"createdAt_gte"`
 	CreatedAtLte  *time.Time          `json:"createdAt_lte"`
 	CreatedAtIn   []*time.Time        `json:"createdAt_in"`
+	UpdatedBy     *string             `json:"updatedBy"`
+	UpdatedByNe   *string             `json:"updatedBy_ne"`
+	UpdatedByGt   *string             `json:"updatedBy_gt"`
+	UpdatedByLt   *string             `json:"updatedBy_lt"`
+	UpdatedByGte  *string             `json:"updatedBy_gte"`
+	UpdatedByLte  *string             `json:"updatedBy_lte"`
+	UpdatedByIn   []string            `json:"updatedBy_in"`
+	CreatedBy     *string             `json:"createdBy"`
+	CreatedByNe   *string             `json:"createdBy_ne"`
+	CreatedByGt   *string             `json:"createdBy_gt"`
+	CreatedByLt   *string             `json:"createdBy_lt"`
+	CreatedByGte  *string             `json:"createdBy_gte"`
+	CreatedByLte  *string             `json:"createdBy_lte"`
+	CreatedByIn   []string            `json:"createdBy_in"`
 	Survey        *SurveyFilterType   `json:"survey"`
 }
 
@@ -111,6 +125,20 @@ type SurveyFilterType struct {
 	CreatedAtGte  *time.Time          `json:"createdAt_gte"`
 	CreatedAtLte  *time.Time          `json:"createdAt_lte"`
 	CreatedAtIn   []*time.Time        `json:"createdAt_in"`
+	UpdatedBy     *string             `json:"updatedBy"`
+	UpdatedByNe   *string             `json:"updatedBy_ne"`
+	UpdatedByGt   *string             `json:"updatedBy_gt"`
+	UpdatedByLt   *string             `json:"updatedBy_lt"`
+	UpdatedByGte  *string             `json:"updatedBy_gte"`
+	UpdatedByLte  *string             `json:"updatedBy_lte"`
+	UpdatedByIn   []string            `json:"updatedBy_in"`
+	CreatedBy     *string             `json:"createdBy"`
+	CreatedByNe   *string             `json:"createdBy_ne"`
+	CreatedByGt   *string             `json:"createdBy_gt"`
+	CreatedByLt   *string             `json:"createdBy_lt"`
+	CreatedByGte  *string             `json:"createdBy_gte"`
+	CreatedByLte  *string             `json:"createdBy_lte"`
+	CreatedByIn   []string            `json:"createdBy_in"`
 	Answers       *AnswerFilterType   `json:"answers"`
 }
 
@@ -131,6 +159,10 @@ const (
 	AnswerSortTypeUpdatedAtDesc AnswerSortType = "UPDATED_AT_DESC"
 	AnswerSortTypeCreatedAtAsc  AnswerSortType = "CREATED_AT_ASC"
 	AnswerSortTypeCreatedAtDesc AnswerSortType = "CREATED_AT_DESC"
+	AnswerSortTypeUpdatedByAsc  AnswerSortType = "UPDATED_BY_ASC"
+	AnswerSortTypeUpdatedByDesc AnswerSortType = "UPDATED_BY_DESC"
+	AnswerSortTypeCreatedByAsc  AnswerSortType = "CREATED_BY_ASC"
+	AnswerSortTypeCreatedByDesc AnswerSortType = "CREATED_BY_DESC"
 )
 
 var AllAnswerSortType = []AnswerSortType{
@@ -148,11 +180,15 @@ var AllAnswerSortType = []AnswerSortType{
 	AnswerSortTypeUpdatedAtDesc,
 	AnswerSortTypeCreatedAtAsc,
 	AnswerSortTypeCreatedAtDesc,
+	AnswerSortTypeUpdatedByAsc,
+	AnswerSortTypeUpdatedByDesc,
+	AnswerSortTypeCreatedByAsc,
+	AnswerSortTypeCreatedByDesc,
 }
 
 func (e AnswerSortType) IsValid() bool {
 	switch e {
-	case AnswerSortTypeIDAsc, AnswerSortTypeIDDesc, AnswerSortTypeUserIDAsc, AnswerSortTypeUserIDDesc, AnswerSortTypeCompletedAsc, AnswerSortTypeCompletedDesc, AnswerSortTypeContentAsc, AnswerSortTypeContentDesc, AnswerSortTypeSurveyIDAsc, AnswerSortTypeSurveyIDDesc, AnswerSortTypeUpdatedAtAsc, AnswerSortTypeUpdatedAtDesc, AnswerSortTypeCreatedAtAsc, AnswerSortTypeCreatedAtDesc:
+	case AnswerSortTypeIDAsc, AnswerSortTypeIDDesc, AnswerSortTypeUserIDAsc, AnswerSortTypeUserIDDesc, AnswerSortTypeCompletedAsc, AnswerSortTypeCompletedDesc, AnswerSortTypeContentAsc, AnswerSortTypeContentDesc, AnswerSortTypeSurveyIDAsc, AnswerSortTypeSurveyIDDesc, AnswerSortTypeUpdatedAtAsc, AnswerSortTypeUpdatedAtDesc, AnswerSortTypeCreatedAtAsc, AnswerSortTypeCreatedAtDesc, AnswerSortTypeUpdatedByAsc, AnswerSortTypeUpdatedByDesc, AnswerSortTypeCreatedByAsc, AnswerSortTypeCreatedByDesc:
 		return true
 	}
 	return false
@@ -192,6 +228,10 @@ const (
 	SurveySortTypeUpdatedAtDesc SurveySortType = "UPDATED_AT_DESC"
 	SurveySortTypeCreatedAtAsc  SurveySortType = "CREATED_AT_ASC"
 	SurveySortTypeCreatedAtDesc SurveySortType = "CREATED_AT_DESC"
+	SurveySortTypeUpdatedByAsc  SurveySortType = "UPDATED_BY_ASC"
+	SurveySortTypeUpdatedByDesc SurveySortType = "UPDATED_BY_DESC"
+	SurveySortTypeCreatedByAsc  SurveySortType = "CREATED_BY_ASC"
+	SurveySortTypeCreatedByDesc SurveySortType = "CREATED_BY_DESC"
 )
 
 var AllSurveySortType = []SurveySortType{
@@ -205,11 +245,15 @@ var AllSurveySortType = []SurveySortType{
 	SurveySortTypeUpdatedAtDesc,
 	SurveySortTypeCreatedAtAsc,
 	SurveySortTypeCreatedAtDesc,
+	SurveySortTypeUpdatedByAsc,
+	SurveySortTypeUpdatedByDesc,
+	SurveySortTypeCreatedByAsc,
+	SurveySortTypeCreatedByDesc,
 }
 
 func (e SurveySortType) IsValid() bool {
 	switch e {
-	case SurveySortTypeIDAsc, SurveySortTypeIDDesc, SurveySortTypeNameAsc, SurveySortTypeNameDesc, SurveySortTypeContentAsc, SurveySortTypeContentDesc, SurveySortTypeUpdatedAtAsc, SurveySortTypeUpdatedAtDesc, SurveySortTypeCreatedAtAsc, SurveySortTypeCreatedAtDesc:
+	case SurveySortTypeIDAsc, SurveySortTypeIDDesc, SurveySortTypeNameAsc, SurveySortTypeNameDesc, SurveySortTypeContentAsc, SurveySortTypeContentDesc, SurveySortTypeUpdatedAtAsc, SurveySortTypeUpdatedAtDesc, SurveySortTypeCreatedAtAsc, SurveySortTypeCreatedAtDesc, SurveySortTypeUpdatedByAsc, SurveySortTypeUpdatedByDesc, SurveySortTypeCreatedByAsc, SurveySortTypeCreatedByDesc:
 		return true
 	}
 	return false
