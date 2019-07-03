@@ -2,7 +2,7 @@ FROM golang:1.12 as builder
 WORKDIR /go/src/github.com/jakubknejzlik/surveyjs-graphql-api
 COPY . .
 RUN go get ./... 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /tmp/app main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /tmp/app *.go
 
 FROM jakubknejzlik/wait-for as wait-for
 
