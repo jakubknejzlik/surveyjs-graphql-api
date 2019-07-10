@@ -17,7 +17,7 @@ type SurveyResultType struct {
 type Survey struct {
 	ID        string     `json:"id" gorm:"column:id;primary_key"`
 	Name      *string    `json:"name" gorm:"column:name"`
-	Content   *string    `json:"content" gorm:"column:content"`
+	Content   *string    `json:"content" gorm:"column:content;type:text"`
 	UpdatedAt *time.Time `json:"updatedAt" gorm:"column:updatedAt"`
 	CreatedAt time.Time  `json:"createdAt" gorm:"column:createdAt"`
 	UpdatedBy *string    `json:"updatedBy" gorm:"column:updatedBy"`
@@ -44,7 +44,7 @@ type Answer struct {
 	ID        string     `json:"id" gorm:"column:id;primary_key"`
 	UserID    string     `json:"userID" gorm:"column:userID"`
 	Completed *bool      `json:"completed" gorm:"column:completed"`
-	Content   *string    `json:"content" gorm:"column:content"`
+	Content   *string    `json:"content" gorm:"column:content;type:text"`
 	SurveyID  *string    `json:"surveyId" gorm:"column:surveyId"`
 	UpdatedAt *time.Time `json:"updatedAt" gorm:"column:updatedAt"`
 	CreatedAt time.Time  `json:"createdAt" gorm:"column:createdAt"`

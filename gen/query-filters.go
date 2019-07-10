@@ -54,7 +54,7 @@ func (qf *SurveyQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
-	if f, ok := fieldsMap["employees"]; ok {
+	if f, ok := fieldsMap["answers"]; ok {
 		_fields := []*ast.Field{}
 		_alias := alias + "_answers"
 		*joins = append(*joins, "LEFT JOIN answers "+_alias+" ON "+_alias+".surveyId = "+alias+".id")
@@ -114,7 +114,7 @@ func (qf *AnswerQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
-	if f, ok := fieldsMap["employees"]; ok {
+	if f, ok := fieldsMap["survey"]; ok {
 		_fields := []*ast.Field{}
 		_alias := alias + "_survey"
 		*joins = append(*joins, "LEFT JOIN surveys "+_alias+" ON "+_alias+".id = "+alias+".surveyId")

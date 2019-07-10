@@ -1,6 +1,6 @@
 type Survey {
   name: String
-  content: String
+  content: String @column(type: "text")
 
   answers: [Answer!]! @relationship(inverse: "survey")
 }
@@ -8,7 +8,7 @@ type Survey {
 type Answer {
   userID: ID!
   completed: Boolean
-  content: String
+  content: String @column(type: "text")
 
   survey: Survey @relationship(inverse: "answers")
 }

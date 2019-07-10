@@ -2,7 +2,6 @@ package gen
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -164,8 +163,8 @@ func (r *GeneratedMutationResolver) UpdateSurvey(ctx context.Context, id string,
 
 	if len(event.Changes) > 0 {
 		err = r.EventController.SendEvent(ctx, &event)
-		data, _ := json.Marshal(event)
-		fmt.Println("??", string(data))
+		// data, _ := json.Marshal(event)
+		// fmt.Println("?",string(data))
 	}
 
 	return
@@ -177,7 +176,7 @@ func (r *GeneratedMutationResolver) DeleteSurvey(ctx context.Context, id string)
 		return
 	}
 
-	err = r.DB.Query().Delete(item, "id = ?", id).Error
+	err = r.DB.Query().Delete(item, "surveys.id = ?", id).Error
 
 	return
 }
@@ -308,8 +307,8 @@ func (r *GeneratedMutationResolver) UpdateAnswer(ctx context.Context, id string,
 
 	if len(event.Changes) > 0 {
 		err = r.EventController.SendEvent(ctx, &event)
-		data, _ := json.Marshal(event)
-		fmt.Println("??", string(data))
+		// data, _ := json.Marshal(event)
+		// fmt.Println("?",string(data))
 	}
 
 	return
@@ -321,17 +320,39 @@ func (r *GeneratedMutationResolver) DeleteAnswer(ctx context.Context, id string)
 		return
 	}
 
-	err = r.DB.Query().Delete(item, "id = ?", id).Error
+	err = r.DB.Query().Delete(item, "answers.id = ?", id).Error
 
 	return
 }
 
 type GeneratedQueryResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedQueryResolver) Survey(ctx context.Context, id *string, q *string) (*Survey, error) {
-	t := Survey{}
-	err := resolvers.GetItem(ctx, r.DB.Query(), &t, id)
-	return &t, err
+func (r *GeneratedQueryResolver) Survey(ctx context.Context, id *string, q *string, filter *SurveyFilterType) (*Survey, error) {
+	query := SurveyQueryFilter{q}
+	offset := 0
+	limit := 1
+	rt := &SurveyResultType{
+		EntityResultType: resolvers.EntityResultType{
+			Offset: &offset,
+			Limit:  &limit,
+			Query:  &query,
+			Filter: filter,
+		},
+	}
+	qb := r.DB.Query()
+	if id != nil {
+		qb = qb.Where("surveys.id = ?", *id)
+	}
+
+	var items []*Survey
+	err := rt.GetItems(ctx, qb, "surveys", &items)
+	if err != nil {
+		return nil, err
+	}
+	if len(items) == 0 {
+		return nil, fmt.Errorf("record not found")
+	}
+	return items[0], err
 }
 func (r *GeneratedQueryResolver) Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error) {
 	_sort := []resolvers.EntitySort{}
@@ -372,10 +393,32 @@ func (r *GeneratedSurveyResolver) Answers(ctx context.Context, obj *Survey) (res
 	return
 }
 
-func (r *GeneratedQueryResolver) Answer(ctx context.Context, id *string, q *string) (*Answer, error) {
-	t := Answer{}
-	err := resolvers.GetItem(ctx, r.DB.Query(), &t, id)
-	return &t, err
+func (r *GeneratedQueryResolver) Answer(ctx context.Context, id *string, q *string, filter *AnswerFilterType) (*Answer, error) {
+	query := AnswerQueryFilter{q}
+	offset := 0
+	limit := 1
+	rt := &AnswerResultType{
+		EntityResultType: resolvers.EntityResultType{
+			Offset: &offset,
+			Limit:  &limit,
+			Query:  &query,
+			Filter: filter,
+		},
+	}
+	qb := r.DB.Query()
+	if id != nil {
+		qb = qb.Where("answers.id = ?", *id)
+	}
+
+	var items []*Answer
+	err := rt.GetItems(ctx, qb, "answers", &items)
+	if err != nil {
+		return nil, err
+	}
+	if len(items) == 0 {
+		return nil, fmt.Errorf("record not found")
+	}
+	return items[0], err
 }
 func (r *GeneratedQueryResolver) Answers(ctx context.Context, offset *int, limit *int, q *string, sort []AnswerSortType, filter *AnswerFilterType) (*AnswerResultType, error) {
 	_sort := []resolvers.EntitySort{}

@@ -2,17 +2,15 @@
 
 scalar Time
 
-directive @relationship(inverse: String!) on FIELD_DEFINITION
-
 schema {
   query: Query
   mutation: Mutation
 }
 
 type Query {
-  survey(id: ID, q: String): Survey
+  survey(id: ID, q: String, filter: SurveyFilterType): Survey
   surveys(offset: Int, limit: Int = 30, q: String, sort: [SurveySortType!], filter: SurveyFilterType): SurveyResultType
-  answer(id: ID, q: String): Answer
+  answer(id: ID, q: String, filter: AnswerFilterType): Answer
   answers(offset: Int, limit: Int = 30, q: String, sort: [AnswerSortType!], filter: AnswerFilterType): AnswerResultType
 }
 
@@ -29,7 +27,7 @@ type Survey {
   id: ID!
   name: String
   content: String
-  answers: [Answer!]! @relationship(inverse: "survey")
+  answers: [Answer!]!
   updatedAt: Time
   createdAt: Time!
   updatedBy: ID
@@ -41,7 +39,7 @@ type Answer {
   userID: ID!
   completed: Boolean
   content: String
-  survey: Survey @relationship(inverse: "answers")
+  survey: Survey
   surveyId: ID
   updatedAt: Time
   createdAt: Time!

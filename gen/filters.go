@@ -19,6 +19,39 @@ func (f *SurveyFilterType) ApplyWithAlias(ctx context.Context, alias string, whe
 	*wheres = append(*wheres, _where...)
 	*values = append(*values, _values...)
 
+	if f.Or != nil {
+		cs := []string{}
+		vs := []interface{}{}
+		js := []string{}
+		for _, or := range f.Or {
+			err := or.ApplyWithAlias(ctx, alias, &cs, &vs, &js)
+			if err != nil {
+				return err
+			}
+		}
+		if len(cs) > 0 {
+			*wheres = append(*wheres, "("+strings.Join(cs, " OR ")+")")
+		}
+		*values = append(*values, vs...)
+		*joins = append(*joins, js...)
+	}
+	if f.And != nil {
+		cs := []string{}
+		vs := []interface{}{}
+		js := []string{}
+		for _, and := range f.And {
+			err := and.ApplyWithAlias(ctx, alias, &cs, &vs, &js)
+			if err != nil {
+				return err
+			}
+		}
+		if len(cs) > 0 {
+			*wheres = append(*wheres, strings.Join(cs, " AND "))
+		}
+		*values = append(*values, vs...)
+		*joins = append(*joins, js...)
+	}
+
 	if f.Answers != nil {
 		_alias := alias + "_answers"
 		*joins = append(*joins, "LEFT JOIN answers "+_alias+" ON "+_alias+".surveyId = "+alias+".id")
@@ -34,29 +67,6 @@ func (f *SurveyFilterType) ApplyWithAlias(ctx context.Context, alias string, whe
 func (f *SurveyFilterType) WhereContent(aliasPrefix string) (conditions []string, values []interface{}) {
 	conditions = []string{}
 	values = []interface{}{}
-
-	if f.Or != nil {
-		cs := []string{}
-		vs := []interface{}{}
-		for _, or := range f.Or {
-			_cond, _values := or.WhereContent(aliasPrefix)
-			cs = append(cs, _cond...)
-			vs = append(vs, _values...)
-		}
-		conditions = append(conditions, "("+strings.Join(cs, " OR ")+")")
-		values = append(values, vs...)
-	}
-	if f.And != nil {
-		cs := []string{}
-		vs := []interface{}{}
-		for _, or := range f.Or {
-			_cond, _values := or.WhereContent(aliasPrefix)
-			cs = append(cs, _cond...)
-			vs = append(vs, _values...)
-		}
-		conditions = append(conditions, strings.Join(cs, " AND "))
-		values = append(values, vs...)
-	}
 
 	if f.ID != nil {
 		conditions = append(conditions, aliasPrefix+"id = ?")
@@ -288,6 +298,38 @@ func (f *SurveyFilterType) WhereContent(aliasPrefix string) (conditions []string
 	return
 }
 
+// AndWith convenience method for combining two or more filters with AND statement
+func (f *SurveyFilterType) AndWith(f2 ...*SurveyFilterType) *SurveyFilterType {
+	_f2 := f2[:0]
+	for _, x := range f2 {
+		if x != nil {
+			_f2 = append(_f2, x)
+		}
+	}
+	if len(_f2) == 0 {
+		return f
+	}
+	return &SurveyFilterType{
+		And: append(_f2, f),
+	}
+}
+
+// OrWith convenience method for combining two or more filters with OR statement
+func (f *SurveyFilterType) OrWith(f2 ...*SurveyFilterType) *SurveyFilterType {
+	_f2 := f2[:0]
+	for _, x := range f2 {
+		if x != nil {
+			_f2 = append(_f2, x)
+		}
+	}
+	if len(_f2) == 0 {
+		return f
+	}
+	return &SurveyFilterType{
+		Or: append(_f2, f),
+	}
+}
+
 func (f *AnswerFilterType) Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error {
 	return f.ApplyWithAlias(ctx, "answers", wheres, values, joins)
 }
@@ -300,6 +342,39 @@ func (f *AnswerFilterType) ApplyWithAlias(ctx context.Context, alias string, whe
 	_where, _values := f.WhereContent(aliasPrefix)
 	*wheres = append(*wheres, _where...)
 	*values = append(*values, _values...)
+
+	if f.Or != nil {
+		cs := []string{}
+		vs := []interface{}{}
+		js := []string{}
+		for _, or := range f.Or {
+			err := or.ApplyWithAlias(ctx, alias, &cs, &vs, &js)
+			if err != nil {
+				return err
+			}
+		}
+		if len(cs) > 0 {
+			*wheres = append(*wheres, "("+strings.Join(cs, " OR ")+")")
+		}
+		*values = append(*values, vs...)
+		*joins = append(*joins, js...)
+	}
+	if f.And != nil {
+		cs := []string{}
+		vs := []interface{}{}
+		js := []string{}
+		for _, and := range f.And {
+			err := and.ApplyWithAlias(ctx, alias, &cs, &vs, &js)
+			if err != nil {
+				return err
+			}
+		}
+		if len(cs) > 0 {
+			*wheres = append(*wheres, strings.Join(cs, " AND "))
+		}
+		*values = append(*values, vs...)
+		*joins = append(*joins, js...)
+	}
 
 	if f.Survey != nil {
 		_alias := alias + "_survey"
@@ -316,29 +391,6 @@ func (f *AnswerFilterType) ApplyWithAlias(ctx context.Context, alias string, whe
 func (f *AnswerFilterType) WhereContent(aliasPrefix string) (conditions []string, values []interface{}) {
 	conditions = []string{}
 	values = []interface{}{}
-
-	if f.Or != nil {
-		cs := []string{}
-		vs := []interface{}{}
-		for _, or := range f.Or {
-			_cond, _values := or.WhereContent(aliasPrefix)
-			cs = append(cs, _cond...)
-			vs = append(vs, _values...)
-		}
-		conditions = append(conditions, "("+strings.Join(cs, " OR ")+")")
-		values = append(values, vs...)
-	}
-	if f.And != nil {
-		cs := []string{}
-		vs := []interface{}{}
-		for _, or := range f.Or {
-			_cond, _values := or.WhereContent(aliasPrefix)
-			cs = append(cs, _cond...)
-			vs = append(vs, _values...)
-		}
-		conditions = append(conditions, strings.Join(cs, " AND "))
-		values = append(values, vs...)
-	}
 
 	if f.ID != nil {
 		conditions = append(conditions, aliasPrefix+"id = ?")
@@ -614,4 +666,36 @@ func (f *AnswerFilterType) WhereContent(aliasPrefix string) (conditions []string
 	}
 
 	return
+}
+
+// AndWith convenience method for combining two or more filters with AND statement
+func (f *AnswerFilterType) AndWith(f2 ...*AnswerFilterType) *AnswerFilterType {
+	_f2 := f2[:0]
+	for _, x := range f2 {
+		if x != nil {
+			_f2 = append(_f2, x)
+		}
+	}
+	if len(_f2) == 0 {
+		return f
+	}
+	return &AnswerFilterType{
+		And: append(_f2, f),
+	}
+}
+
+// OrWith convenience method for combining two or more filters with OR statement
+func (f *AnswerFilterType) OrWith(f2 ...*AnswerFilterType) *AnswerFilterType {
+	_f2 := f2[:0]
+	for _, x := range f2 {
+		if x != nil {
+			_f2 = append(_f2, x)
+		}
+	}
+	if len(_f2) == 0 {
+		return f
+	}
+	return &AnswerFilterType{
+		Or: append(_f2, f),
+	}
 }
