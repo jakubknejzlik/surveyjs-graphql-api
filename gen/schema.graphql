@@ -36,7 +36,7 @@ type Survey {
 
 type SurveyAnswer {
   id: ID!
-  userID: ID!
+  userId: ID!
   completed: Boolean
   content: String
   survey: Survey
@@ -145,14 +145,14 @@ type SurveyResultType {
 
 input SurveyAnswerCreateInput {
   id: ID
-  userID: ID!
+  userId: ID!
   completed: Boolean
   content: String
   surveyId: ID
 }
 
 input SurveyAnswerUpdateInput {
-  userID: ID
+  userId: ID
   completed: Boolean
   content: String
   surveyId: ID
@@ -189,13 +189,13 @@ input SurveyAnswerFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
-  userID: ID
-  userID_ne: ID
-  userID_gt: ID
-  userID_lt: ID
-  userID_gte: ID
-  userID_lte: ID
-  userID_in: [ID!]
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
   completed: Boolean
   completed_ne: Boolean
   completed_gt: Boolean

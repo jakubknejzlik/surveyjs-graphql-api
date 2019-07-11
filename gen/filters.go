@@ -424,31 +424,31 @@ func (f *SurveyAnswerFilterType) WhereContent(dialect gorm.Dialect, aliasPrefix 
 	}
 
 	if f.UserID != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" = ?")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" = ?")
 		values = append(values, f.UserID)
 	}
 	if f.UserIDNe != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" != ?")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" != ?")
 		values = append(values, f.UserIDNe)
 	}
 	if f.UserIDGt != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" > ?")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" > ?")
 		values = append(values, f.UserIDGt)
 	}
 	if f.UserIDLt != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" < ?")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" < ?")
 		values = append(values, f.UserIDLt)
 	}
 	if f.UserIDGte != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" >= ?")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" >= ?")
 		values = append(values, f.UserIDGte)
 	}
 	if f.UserIDLte != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" <= ?")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" <= ?")
 		values = append(values, f.UserIDLte)
 	}
 	if f.UserIDIn != nil {
-		conditions = append(conditions, aliasPrefix+dialect.Quote("userID")+" IN (?)")
+		conditions = append(conditions, aliasPrefix+dialect.Quote("userId")+" IN (?)")
 		values = append(values, f.UserIDIn)
 	}
 

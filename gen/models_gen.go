@@ -19,13 +19,13 @@ type SurveyAnswerFilterType struct {
 	IDGte         *string                   `json:"id_gte"`
 	IDLte         *string                   `json:"id_lte"`
 	IDIn          []string                  `json:"id_in"`
-	UserID        *string                   `json:"userID"`
-	UserIDNe      *string                   `json:"userID_ne"`
-	UserIDGt      *string                   `json:"userID_gt"`
-	UserIDLt      *string                   `json:"userID_lt"`
-	UserIDGte     *string                   `json:"userID_gte"`
-	UserIDLte     *string                   `json:"userID_lte"`
-	UserIDIn      []string                  `json:"userID_in"`
+	UserID        *string                   `json:"userId"`
+	UserIDNe      *string                   `json:"userId_ne"`
+	UserIDGt      *string                   `json:"userId_gt"`
+	UserIDLt      *string                   `json:"userId_lt"`
+	UserIDGte     *string                   `json:"userId_gte"`
+	UserIDLte     *string                   `json:"userId_lte"`
+	UserIDIn      []string                  `json:"userId_in"`
 	Completed     *bool                     `json:"completed"`
 	CompletedNe   *bool                     `json:"completed_ne"`
 	CompletedGt   *bool                     `json:"completed_gt"`

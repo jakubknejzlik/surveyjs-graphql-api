@@ -206,9 +206,9 @@ func (r *GeneratedMutationResolver) CreateSurveyAnswer(ctx context.Context, inpu
 		event.AddNewValue("id", changes.ID)
 	}
 
-	if _, ok := input["userID"]; ok && (item.UserID != changes.UserID) {
+	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) {
 		item.UserID = changes.UserID
-		event.AddNewValue("userID", changes.UserID)
+		event.AddNewValue("userId", changes.UserID)
 	}
 
 	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
@@ -270,9 +270,9 @@ func (r *GeneratedMutationResolver) UpdateSurveyAnswer(ctx context.Context, id s
 
 	item.UpdatedBy = principalID
 
-	if _, ok := input["userID"]; ok && (item.UserID != changes.UserID) {
-		event.AddOldValue("userID", item.UserID)
-		event.AddNewValue("userID", changes.UserID)
+	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) {
+		event.AddOldValue("userId", item.UserID)
+		event.AddNewValue("userId", changes.UserID)
 		item.UserID = changes.UserID
 	}
 

@@ -42,7 +42,7 @@ type SurveyAnswerResultType struct {
 
 type SurveyAnswer struct {
 	ID        string     `json:"id" gorm:"column:id;primary_key"`
-	UserID    string     `json:"userID" gorm:"column:userID"`
+	UserID    string     `json:"userId" gorm:"column:userId"`
 	Completed *bool      `json:"completed" gorm:"column:completed"`
 	Content   *string    `json:"content" gorm:"column:content;type:text"`
 	SurveyID  *string    `json:"surveyId" gorm:"column:surveyId"`

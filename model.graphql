@@ -6,7 +6,7 @@ type Survey {
 }
 
 type SurveyAnswer {
-  userID: ID!
+  userId: ID!
   completed: Boolean
   content: String @column(type: "text")
 

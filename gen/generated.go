@@ -381,7 +381,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SurveyAnswer.UpdatedBy(childComplexity), true
 
-	case "SurveyAnswer.userID":
+	case "SurveyAnswer.userId":
 		if e.complexity.SurveyAnswer.UserID == nil {
 			break
 		}
@@ -516,7 +516,7 @@ type Survey {
 
 type SurveyAnswer {
   id: ID!
-  userID: ID!
+  userId: ID!
   completed: Boolean
   content: String
   survey: Survey
@@ -625,14 +625,14 @@ type SurveyResultType {
 
 input SurveyAnswerCreateInput {
   id: ID
-  userID: ID!
+  userId: ID!
   completed: Boolean
   content: String
   surveyId: ID
 }
 
 input SurveyAnswerUpdateInput {
-  userID: ID
+  userId: ID
   completed: Boolean
   content: String
   surveyId: ID
@@ -669,13 +669,13 @@ input SurveyAnswerFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
-  userID: ID
-  userID_ne: ID
-  userID_gt: ID
-  userID_lt: ID
-  userID_gte: ID
-  userID_lte: ID
-  userID_in: [ID!]
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
   completed: Boolean
   completed_ne: Boolean
   completed_gt: Boolean
@@ -1865,7 +1865,7 @@ func (ec *executionContext) _SurveyAnswer_id(ctx context.Context, field graphql.
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _SurveyAnswer_userID(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+func (ec *executionContext) _SurveyAnswer_userId(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -3536,43 +3536,43 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
-		case "userID":
+		case "userId":
 			var err error
 			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "userID_ne":
+		case "userId_ne":
 			var err error
 			it.UserIDNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "userID_gt":
+		case "userId_gt":
 			var err error
 			it.UserIDGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "userID_lt":
+		case "userId_lt":
 			var err error
 			it.UserIDLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "userID_gte":
+		case "userId_gte":
 			var err error
 			it.UserIDGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "userID_lte":
+		case "userId_lte":
 			var err error
 			it.UserIDLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "userID_in":
+		case "userId_in":
 			var err error
 			it.UserIDIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
 			if err != nil {
@@ -4472,8 +4472,8 @@ func (ec *executionContext) _SurveyAnswer(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "userID":
-			out.Values[i] = ec._SurveyAnswer_userID(ctx, field, obj)
+		case "userId":
+			out.Values[i] = ec._SurveyAnswer_userId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
