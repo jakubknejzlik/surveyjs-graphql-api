@@ -35,11 +35,11 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Answer() AnswerResolver
-	AnswerResultType() AnswerResultTypeResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Survey() SurveyResolver
+	SurveyAnswer() SurveyAnswerResolver
+	SurveyAnswerResultType() SurveyAnswerResultTypeResolver
 	SurveyResultType() SurveyResultTypeResolver
 }
 
@@ -47,38 +47,20 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Answer struct {
-		Completed func(childComplexity int) int
-		Content   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		CreatedBy func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Survey    func(childComplexity int) int
-		SurveyID  func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		UpdatedBy func(childComplexity int) int
-		UserID    func(childComplexity int) int
-	}
-
-	AnswerResultType struct {
-		Count func(childComplexity int) int
-		Items func(childComplexity int) int
-	}
-
 	Mutation struct {
-		CreateAnswer func(childComplexity int, input map[string]interface{}) int
-		CreateSurvey func(childComplexity int, input map[string]interface{}) int
-		DeleteAnswer func(childComplexity int, id string) int
-		DeleteSurvey func(childComplexity int, id string) int
-		UpdateAnswer func(childComplexity int, id string, input map[string]interface{}) int
-		UpdateSurvey func(childComplexity int, id string, input map[string]interface{}) int
+		CreateSurvey       func(childComplexity int, input map[string]interface{}) int
+		CreateSurveyAnswer func(childComplexity int, input map[string]interface{}) int
+		DeleteSurvey       func(childComplexity int, id string) int
+		DeleteSurveyAnswer func(childComplexity int, id string) int
+		UpdateSurvey       func(childComplexity int, id string, input map[string]interface{}) int
+		UpdateSurveyAnswer func(childComplexity int, id string, input map[string]interface{}) int
 	}
 
 	Query struct {
-		Answer  func(childComplexity int, id *string, q *string, filter *AnswerFilterType) int
-		Answers func(childComplexity int, offset *int, limit *int, q *string, sort []AnswerSortType, filter *AnswerFilterType) int
-		Survey  func(childComplexity int, id *string, q *string, filter *SurveyFilterType) int
-		Surveys func(childComplexity int, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) int
+		Survey        func(childComplexity int, id *string, q *string, filter *SurveyFilterType) int
+		SurveyAnswer  func(childComplexity int, id *string, q *string, filter *SurveyAnswerFilterType) int
+		SurveyAnswers func(childComplexity int, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) int
+		Surveys       func(childComplexity int, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) int
 	}
 
 	Survey struct {
@@ -92,35 +74,53 @@ type ComplexityRoot struct {
 		UpdatedBy func(childComplexity int) int
 	}
 
+	SurveyAnswer struct {
+		Completed func(childComplexity int) int
+		Content   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Survey    func(childComplexity int) int
+		SurveyID  func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		UpdatedBy func(childComplexity int) int
+		UserID    func(childComplexity int) int
+	}
+
+	SurveyAnswerResultType struct {
+		Count func(childComplexity int) int
+		Items func(childComplexity int) int
+	}
+
 	SurveyResultType struct {
 		Count func(childComplexity int) int
 		Items func(childComplexity int) int
 	}
 }
 
-type AnswerResolver interface {
-	Survey(ctx context.Context, obj *Answer) (*Survey, error)
-}
-type AnswerResultTypeResolver interface {
-	Items(ctx context.Context, obj *AnswerResultType) ([]*Answer, error)
-	Count(ctx context.Context, obj *AnswerResultType) (int, error)
-}
 type MutationResolver interface {
 	CreateSurvey(ctx context.Context, input map[string]interface{}) (*Survey, error)
 	UpdateSurvey(ctx context.Context, id string, input map[string]interface{}) (*Survey, error)
 	DeleteSurvey(ctx context.Context, id string) (*Survey, error)
-	CreateAnswer(ctx context.Context, input map[string]interface{}) (*Answer, error)
-	UpdateAnswer(ctx context.Context, id string, input map[string]interface{}) (*Answer, error)
-	DeleteAnswer(ctx context.Context, id string) (*Answer, error)
+	CreateSurveyAnswer(ctx context.Context, input map[string]interface{}) (*SurveyAnswer, error)
+	UpdateSurveyAnswer(ctx context.Context, id string, input map[string]interface{}) (*SurveyAnswer, error)
+	DeleteSurveyAnswer(ctx context.Context, id string) (*SurveyAnswer, error)
 }
 type QueryResolver interface {
 	Survey(ctx context.Context, id *string, q *string, filter *SurveyFilterType) (*Survey, error)
 	Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error)
-	Answer(ctx context.Context, id *string, q *string, filter *AnswerFilterType) (*Answer, error)
-	Answers(ctx context.Context, offset *int, limit *int, q *string, sort []AnswerSortType, filter *AnswerFilterType) (*AnswerResultType, error)
+	SurveyAnswer(ctx context.Context, id *string, q *string, filter *SurveyAnswerFilterType) (*SurveyAnswer, error)
+	SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error)
 }
 type SurveyResolver interface {
-	Answers(ctx context.Context, obj *Survey) ([]*Answer, error)
+	Answers(ctx context.Context, obj *Survey) ([]*SurveyAnswer, error)
+}
+type SurveyAnswerResolver interface {
+	Survey(ctx context.Context, obj *SurveyAnswer) (*Survey, error)
+}
+type SurveyAnswerResultTypeResolver interface {
+	Items(ctx context.Context, obj *SurveyAnswerResultType) ([]*SurveyAnswer, error)
+	Count(ctx context.Context, obj *SurveyAnswerResultType) (int, error)
 }
 type SurveyResultTypeResolver interface {
 	Items(ctx context.Context, obj *SurveyResultType) ([]*Survey, error)
@@ -142,102 +142,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Answer.completed":
-		if e.complexity.Answer.Completed == nil {
-			break
-		}
-
-		return e.complexity.Answer.Completed(childComplexity), true
-
-	case "Answer.content":
-		if e.complexity.Answer.Content == nil {
-			break
-		}
-
-		return e.complexity.Answer.Content(childComplexity), true
-
-	case "Answer.createdAt":
-		if e.complexity.Answer.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Answer.CreatedAt(childComplexity), true
-
-	case "Answer.createdBy":
-		if e.complexity.Answer.CreatedBy == nil {
-			break
-		}
-
-		return e.complexity.Answer.CreatedBy(childComplexity), true
-
-	case "Answer.id":
-		if e.complexity.Answer.ID == nil {
-			break
-		}
-
-		return e.complexity.Answer.ID(childComplexity), true
-
-	case "Answer.survey":
-		if e.complexity.Answer.Survey == nil {
-			break
-		}
-
-		return e.complexity.Answer.Survey(childComplexity), true
-
-	case "Answer.surveyId":
-		if e.complexity.Answer.SurveyID == nil {
-			break
-		}
-
-		return e.complexity.Answer.SurveyID(childComplexity), true
-
-	case "Answer.updatedAt":
-		if e.complexity.Answer.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Answer.UpdatedAt(childComplexity), true
-
-	case "Answer.updatedBy":
-		if e.complexity.Answer.UpdatedBy == nil {
-			break
-		}
-
-		return e.complexity.Answer.UpdatedBy(childComplexity), true
-
-	case "Answer.userID":
-		if e.complexity.Answer.UserID == nil {
-			break
-		}
-
-		return e.complexity.Answer.UserID(childComplexity), true
-
-	case "AnswerResultType.count":
-		if e.complexity.AnswerResultType.Count == nil {
-			break
-		}
-
-		return e.complexity.AnswerResultType.Count(childComplexity), true
-
-	case "AnswerResultType.items":
-		if e.complexity.AnswerResultType.Items == nil {
-			break
-		}
-
-		return e.complexity.AnswerResultType.Items(childComplexity), true
-
-	case "Mutation.createAnswer":
-		if e.complexity.Mutation.CreateAnswer == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createAnswer_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateAnswer(childComplexity, args["input"].(map[string]interface{})), true
-
 	case "Mutation.createSurvey":
 		if e.complexity.Mutation.CreateSurvey == nil {
 			break
@@ -250,17 +154,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateSurvey(childComplexity, args["input"].(map[string]interface{})), true
 
-	case "Mutation.deleteAnswer":
-		if e.complexity.Mutation.DeleteAnswer == nil {
+	case "Mutation.createSurveyAnswer":
+		if e.complexity.Mutation.CreateSurveyAnswer == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteAnswer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createSurveyAnswer_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteAnswer(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.CreateSurveyAnswer(childComplexity, args["input"].(map[string]interface{})), true
 
 	case "Mutation.deleteSurvey":
 		if e.complexity.Mutation.DeleteSurvey == nil {
@@ -274,17 +178,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteSurvey(childComplexity, args["id"].(string)), true
 
-	case "Mutation.updateAnswer":
-		if e.complexity.Mutation.UpdateAnswer == nil {
+	case "Mutation.deleteSurveyAnswer":
+		if e.complexity.Mutation.DeleteSurveyAnswer == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateAnswer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteSurveyAnswer_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateAnswer(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
+		return e.complexity.Mutation.DeleteSurveyAnswer(childComplexity, args["id"].(string)), true
 
 	case "Mutation.updateSurvey":
 		if e.complexity.Mutation.UpdateSurvey == nil {
@@ -298,29 +202,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateSurvey(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
 
-	case "Query.answer":
-		if e.complexity.Query.Answer == nil {
+	case "Mutation.updateSurveyAnswer":
+		if e.complexity.Mutation.UpdateSurveyAnswer == nil {
 			break
 		}
 
-		args, err := ec.field_Query_answer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateSurveyAnswer_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Answer(childComplexity, args["id"].(*string), args["q"].(*string), args["filter"].(*AnswerFilterType)), true
-
-	case "Query.answers":
-		if e.complexity.Query.Answers == nil {
-			break
-		}
-
-		args, err := ec.field_Query_answers_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Answers(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]AnswerSortType), args["filter"].(*AnswerFilterType)), true
+		return e.complexity.Mutation.UpdateSurveyAnswer(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
 
 	case "Query.survey":
 		if e.complexity.Query.Survey == nil {
@@ -333,6 +225,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Survey(childComplexity, args["id"].(*string), args["q"].(*string), args["filter"].(*SurveyFilterType)), true
+
+	case "Query.surveyAnswer":
+		if e.complexity.Query.SurveyAnswer == nil {
+			break
+		}
+
+		args, err := ec.field_Query_surveyAnswer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SurveyAnswer(childComplexity, args["id"].(*string), args["q"].(*string), args["filter"].(*SurveyAnswerFilterType)), true
+
+	case "Query.surveyAnswers":
+		if e.complexity.Query.SurveyAnswers == nil {
+			break
+		}
+
+		args, err := ec.field_Query_surveyAnswers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SurveyAnswers(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType)), true
 
 	case "Query.surveys":
 		if e.complexity.Query.Surveys == nil {
@@ -401,6 +317,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Survey.UpdatedBy(childComplexity), true
+
+	case "SurveyAnswer.completed":
+		if e.complexity.SurveyAnswer.Completed == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.Completed(childComplexity), true
+
+	case "SurveyAnswer.content":
+		if e.complexity.SurveyAnswer.Content == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.Content(childComplexity), true
+
+	case "SurveyAnswer.createdAt":
+		if e.complexity.SurveyAnswer.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.CreatedAt(childComplexity), true
+
+	case "SurveyAnswer.createdBy":
+		if e.complexity.SurveyAnswer.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.CreatedBy(childComplexity), true
+
+	case "SurveyAnswer.id":
+		if e.complexity.SurveyAnswer.ID == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.ID(childComplexity), true
+
+	case "SurveyAnswer.survey":
+		if e.complexity.SurveyAnswer.Survey == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.Survey(childComplexity), true
+
+	case "SurveyAnswer.surveyId":
+		if e.complexity.SurveyAnswer.SurveyID == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.SurveyID(childComplexity), true
+
+	case "SurveyAnswer.updatedAt":
+		if e.complexity.SurveyAnswer.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.UpdatedAt(childComplexity), true
+
+	case "SurveyAnswer.updatedBy":
+		if e.complexity.SurveyAnswer.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.UpdatedBy(childComplexity), true
+
+	case "SurveyAnswer.userID":
+		if e.complexity.SurveyAnswer.UserID == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswer.UserID(childComplexity), true
+
+	case "SurveyAnswerResultType.count":
+		if e.complexity.SurveyAnswerResultType.Count == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswerResultType.Count(childComplexity), true
+
+	case "SurveyAnswerResultType.items":
+		if e.complexity.SurveyAnswerResultType.Items == nil {
+			break
+		}
+
+		return e.complexity.SurveyAnswerResultType.Items(childComplexity), true
 
 	case "SurveyResultType.count":
 		if e.complexity.SurveyResultType.Count == nil {
@@ -490,31 +490,31 @@ schema {
 type Query {
   survey(id: ID, q: String, filter: SurveyFilterType): Survey
   surveys(offset: Int, limit: Int = 30, q: String, sort: [SurveySortType!], filter: SurveyFilterType): SurveyResultType
-  answer(id: ID, q: String, filter: AnswerFilterType): Answer
-  answers(offset: Int, limit: Int = 30, q: String, sort: [AnswerSortType!], filter: AnswerFilterType): AnswerResultType
+  surveyAnswer(id: ID, q: String, filter: SurveyAnswerFilterType): SurveyAnswer
+  surveyAnswers(offset: Int, limit: Int = 30, q: String, sort: [SurveyAnswerSortType!], filter: SurveyAnswerFilterType): SurveyAnswerResultType
 }
 
 type Mutation {
   createSurvey(input: SurveyCreateInput!): Survey!
   updateSurvey(id: ID!, input: SurveyUpdateInput!): Survey!
   deleteSurvey(id: ID!): Survey!
-  createAnswer(input: AnswerCreateInput!): Answer!
-  updateAnswer(id: ID!, input: AnswerUpdateInput!): Answer!
-  deleteAnswer(id: ID!): Answer!
+  createSurveyAnswer(input: SurveyAnswerCreateInput!): SurveyAnswer!
+  updateSurveyAnswer(id: ID!, input: SurveyAnswerUpdateInput!): SurveyAnswer!
+  deleteSurveyAnswer(id: ID!): SurveyAnswer!
 }
 
 type Survey {
   id: ID!
   name: String
   content: String
-  answers: [Answer!]!
+  answers: [SurveyAnswer!]!
   updatedAt: Time
   createdAt: Time!
   updatedBy: ID
   createdBy: ID
 }
 
-type Answer {
+type SurveyAnswer {
   id: ID!
   userID: ID!
   completed: Boolean
@@ -615,7 +615,7 @@ input SurveyFilterType {
   createdBy_gte: ID
   createdBy_lte: ID
   createdBy_in: [ID!]
-  answers: AnswerFilterType
+  answers: SurveyAnswerFilterType
 }
 
 type SurveyResultType {
@@ -623,7 +623,7 @@ type SurveyResultType {
   count: Int!
 }
 
-input AnswerCreateInput {
+input SurveyAnswerCreateInput {
   id: ID
   userID: ID!
   completed: Boolean
@@ -631,14 +631,14 @@ input AnswerCreateInput {
   surveyId: ID
 }
 
-input AnswerUpdateInput {
+input SurveyAnswerUpdateInput {
   userID: ID
   completed: Boolean
   content: String
   surveyId: ID
 }
 
-enum AnswerSortType {
+enum SurveyAnswerSortType {
   ID_ASC
   ID_DESC
   USER_ID_ASC
@@ -659,9 +659,9 @@ enum AnswerSortType {
   CREATED_BY_DESC
 }
 
-input AnswerFilterType {
-  AND: [AnswerFilterType!]
-  OR: [AnswerFilterType!]
+input SurveyAnswerFilterType {
+  AND: [SurveyAnswerFilterType!]
+  OR: [SurveyAnswerFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -731,8 +731,8 @@ input AnswerFilterType {
   survey: SurveyFilterType
 }
 
-type AnswerResultType {
-  items: [Answer!]!
+type SurveyAnswerResultType {
+  items: [SurveyAnswer!]!
   count: Int!
 }
 `},
@@ -742,12 +742,12 @@ type AnswerResultType {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createSurveyAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 map[string]interface{}
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNAnswerCreateInput2map(ctx, tmp)
+		arg0, err = ec.unmarshalNSurveyAnswerCreateInput2map(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -770,7 +770,7 @@ func (ec *executionContext) field_Mutation_createSurvey_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteSurveyAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -798,7 +798,7 @@ func (ec *executionContext) field_Mutation_deleteSurvey_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateSurveyAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -811,7 +811,7 @@ func (ec *executionContext) field_Mutation_updateAnswer_args(ctx context.Context
 	args["id"] = arg0
 	var arg1 map[string]interface{}
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNAnswerUpdateInput2map(ctx, tmp)
+		arg1, err = ec.unmarshalNSurveyAnswerUpdateInput2map(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -856,7 +856,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_answer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_surveyAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
@@ -875,9 +875,9 @@ func (ec *executionContext) field_Query_answer_args(ctx context.Context, rawArgs
 		}
 	}
 	args["q"] = arg1
-	var arg2 *AnswerFilterType
+	var arg2 *SurveyAnswerFilterType
 	if tmp, ok := rawArgs["filter"]; ok {
-		arg2, err = ec.unmarshalOAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, tmp)
+		arg2, err = ec.unmarshalOSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -886,7 +886,7 @@ func (ec *executionContext) field_Query_answer_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_answers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_surveyAnswers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -913,17 +913,17 @@ func (ec *executionContext) field_Query_answers_args(ctx context.Context, rawArg
 		}
 	}
 	args["q"] = arg2
-	var arg3 []AnswerSortType
+	var arg3 []SurveyAnswerSortType
 	if tmp, ok := rawArgs["sort"]; ok {
-		arg3, err = ec.unmarshalOAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx, tmp)
+		arg3, err = ec.unmarshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["sort"] = arg3
-	var arg4 *AnswerFilterType
+	var arg4 *SurveyAnswerFilterType
 	if tmp, ok := rawArgs["filter"]; ok {
-		arg4, err = ec.unmarshalOAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, tmp)
+		arg4, err = ec.unmarshalOSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1043,429 +1043,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _Answer_id(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_userID(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_completed(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_content(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Content, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_survey(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Answer().Survey(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*Survey)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOSurvey2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurvey(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_surveyId(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SurveyID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_createdAt(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedBy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Answer_createdBy(ctx context.Context, field graphql.CollectedField, obj *Answer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Answer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedBy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _AnswerResultType_items(ctx context.Context, field graphql.CollectedField, obj *AnswerResultType) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AnswerResultType",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AnswerResultType().Items(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Answer)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNAnswer2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _AnswerResultType_count(ctx context.Context, field graphql.CollectedField, obj *AnswerResultType) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AnswerResultType",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AnswerResultType().Count(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
 
 func (ec *executionContext) _Mutation_createSurvey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
@@ -1599,7 +1176,7 @@ func (ec *executionContext) _Mutation_deleteSurvey(ctx context.Context, field gr
 	return ec.marshalNSurvey2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurvey(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_createAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_createSurveyAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1616,7 +1193,7 @@ func (ec *executionContext) _Mutation_createAnswer(ctx context.Context, field gr
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_createAnswer_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_createSurveyAnswer_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1625,7 +1202,7 @@ func (ec *executionContext) _Mutation_createAnswer(ctx context.Context, field gr
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateAnswer(rctx, args["input"].(map[string]interface{}))
+		return ec.resolvers.Mutation().CreateSurveyAnswer(rctx, args["input"].(map[string]interface{}))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1637,13 +1214,13 @@ func (ec *executionContext) _Mutation_createAnswer(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Answer)
+	res := resTmp.(*SurveyAnswer)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, field.Selections, res)
+	return ec.marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_updateAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_updateSurveyAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1660,7 +1237,7 @@ func (ec *executionContext) _Mutation_updateAnswer(ctx context.Context, field gr
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_updateAnswer_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_updateSurveyAnswer_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1669,7 +1246,7 @@ func (ec *executionContext) _Mutation_updateAnswer(ctx context.Context, field gr
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateAnswer(rctx, args["id"].(string), args["input"].(map[string]interface{}))
+		return ec.resolvers.Mutation().UpdateSurveyAnswer(rctx, args["id"].(string), args["input"].(map[string]interface{}))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1681,13 +1258,13 @@ func (ec *executionContext) _Mutation_updateAnswer(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Answer)
+	res := resTmp.(*SurveyAnswer)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, field.Selections, res)
+	return ec.marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_deleteAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_deleteSurveyAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1704,7 +1281,7 @@ func (ec *executionContext) _Mutation_deleteAnswer(ctx context.Context, field gr
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_deleteAnswer_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_deleteSurveyAnswer_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1713,7 +1290,7 @@ func (ec *executionContext) _Mutation_deleteAnswer(ctx context.Context, field gr
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteAnswer(rctx, args["id"].(string))
+		return ec.resolvers.Mutation().DeleteSurveyAnswer(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1725,10 +1302,10 @@ func (ec *executionContext) _Mutation_deleteAnswer(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Answer)
+	res := resTmp.(*SurveyAnswer)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, field.Selections, res)
+	return ec.marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_survey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1813,7 +1390,7 @@ func (ec *executionContext) _Query_surveys(ctx context.Context, field graphql.Co
 	return ec.marshalOSurveyResultType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyResultType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_answer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_surveyAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1830,7 +1407,7 @@ func (ec *executionContext) _Query_answer(ctx context.Context, field graphql.Col
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_answer_args(ctx, rawArgs)
+	args, err := ec.field_Query_surveyAnswer_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1839,7 +1416,7 @@ func (ec *executionContext) _Query_answer(ctx context.Context, field graphql.Col
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Answer(rctx, args["id"].(*string), args["q"].(*string), args["filter"].(*AnswerFilterType))
+		return ec.resolvers.Query().SurveyAnswer(rctx, args["id"].(*string), args["q"].(*string), args["filter"].(*SurveyAnswerFilterType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1848,13 +1425,13 @@ func (ec *executionContext) _Query_answer(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*Answer)
+	res := resTmp.(*SurveyAnswer)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, field.Selections, res)
+	return ec.marshalOSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_answers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_surveyAnswers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1871,7 +1448,7 @@ func (ec *executionContext) _Query_answers(ctx context.Context, field graphql.Co
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_answers_args(ctx, rawArgs)
+	args, err := ec.field_Query_surveyAnswers_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1880,7 +1457,7 @@ func (ec *executionContext) _Query_answers(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Answers(rctx, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]AnswerSortType), args["filter"].(*AnswerFilterType))
+		return ec.resolvers.Query().SurveyAnswers(rctx, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1889,10 +1466,10 @@ func (ec *executionContext) _Query_answers(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*AnswerResultType)
+	res := resTmp.(*SurveyAnswerResultType)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAnswerResultType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerResultType(ctx, field.Selections, res)
+	return ec.marshalOSurveyAnswerResultType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerResultType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2106,10 +1683,10 @@ func (ec *executionContext) _Survey_answers(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*Answer)
+	res := resTmp.([]*SurveyAnswer)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNAnswer2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, field.Selections, res)
+	return ec.marshalNSurveyAnswer2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Survey_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Survey) (ret graphql.Marshaler) {
@@ -2249,6 +1826,429 @@ func (ec *executionContext) _Survey_createdBy(ctx context.Context, field graphql
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_id(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_userID(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_completed(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Completed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_content(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_survey(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SurveyAnswer().Survey(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Survey)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOSurvey2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurvey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_surveyId(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SurveyID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_updatedAt(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_createdAt(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_updatedBy(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswer_createdBy(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswer",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswerResultType_items(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswerResultType) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswerResultType",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SurveyAnswerResultType().Items(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*SurveyAnswer)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNSurveyAnswer2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyAnswerResultType_count(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswerResultType) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyAnswerResultType",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SurveyAnswerResultType().Count(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SurveyResultType_items(ctx context.Context, field graphql.CollectedField, obj *SurveyResultType) (ret graphql.Marshaler) {
@@ -3476,21 +3476,21 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAnswerFilterType(ctx context.Context, obj interface{}) (AnswerFilterType, error) {
-	var it AnswerFilterType
+func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Context, obj interface{}) (SurveyAnswerFilterType, error) {
+	var it SurveyAnswerFilterType
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
 		switch k {
 		case "AND":
 			var err error
-			it.And, err = ec.unmarshalOAnswerFilterType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, v)
+			it.And, err = ec.unmarshalOSurveyAnswerFilterType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "OR":
 			var err error
-			it.Or, err = ec.unmarshalOAnswerFilterType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, v)
+			it.Or, err = ec.unmarshalOSurveyAnswerFilterType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4252,7 +4252,7 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 			}
 		case "answers":
 			var err error
-			it.Answers, err = ec.unmarshalOAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, v)
+			it.Answers, err = ec.unmarshalOSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4269,116 +4269,6 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
-
-var answerImplementors = []string{"Answer"}
-
-func (ec *executionContext) _Answer(ctx context.Context, sel ast.SelectionSet, obj *Answer) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, answerImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Answer")
-		case "id":
-			out.Values[i] = ec._Answer_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "userID":
-			out.Values[i] = ec._Answer_userID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "completed":
-			out.Values[i] = ec._Answer_completed(ctx, field, obj)
-		case "content":
-			out.Values[i] = ec._Answer_content(ctx, field, obj)
-		case "survey":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Answer_survey(ctx, field, obj)
-				return res
-			})
-		case "surveyId":
-			out.Values[i] = ec._Answer_surveyId(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Answer_updatedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Answer_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "updatedBy":
-			out.Values[i] = ec._Answer_updatedBy(ctx, field, obj)
-		case "createdBy":
-			out.Values[i] = ec._Answer_createdBy(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var answerResultTypeImplementors = []string{"AnswerResultType"}
-
-func (ec *executionContext) _AnswerResultType(ctx context.Context, sel ast.SelectionSet, obj *AnswerResultType) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, answerResultTypeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AnswerResultType")
-		case "items":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AnswerResultType_items(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "count":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AnswerResultType_count(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -4410,18 +4300,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createAnswer":
-			out.Values[i] = ec._Mutation_createAnswer(ctx, field)
+		case "createSurveyAnswer":
+			out.Values[i] = ec._Mutation_createSurveyAnswer(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateAnswer":
-			out.Values[i] = ec._Mutation_updateAnswer(ctx, field)
+		case "updateSurveyAnswer":
+			out.Values[i] = ec._Mutation_updateSurveyAnswer(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteAnswer":
-			out.Values[i] = ec._Mutation_deleteAnswer(ctx, field)
+		case "deleteSurveyAnswer":
+			out.Values[i] = ec._Mutation_deleteSurveyAnswer(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4473,7 +4363,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_surveys(ctx, field)
 				return res
 			})
-		case "answer":
+		case "surveyAnswer":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -4481,10 +4371,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_answer(ctx, field)
+				res = ec._Query_surveyAnswer(ctx, field)
 				return res
 			})
-		case "answers":
+		case "surveyAnswers":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -4492,7 +4382,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_answers(ctx, field)
+				res = ec._Query_surveyAnswers(ctx, field)
 				return res
 			})
 		case "__type":
@@ -4555,6 +4445,116 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Survey_updatedBy(ctx, field, obj)
 		case "createdBy":
 			out.Values[i] = ec._Survey_createdBy(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyAnswerImplementors = []string{"SurveyAnswer"}
+
+func (ec *executionContext) _SurveyAnswer(ctx context.Context, sel ast.SelectionSet, obj *SurveyAnswer) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, surveyAnswerImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyAnswer")
+		case "id":
+			out.Values[i] = ec._SurveyAnswer_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "userID":
+			out.Values[i] = ec._SurveyAnswer_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "completed":
+			out.Values[i] = ec._SurveyAnswer_completed(ctx, field, obj)
+		case "content":
+			out.Values[i] = ec._SurveyAnswer_content(ctx, field, obj)
+		case "survey":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SurveyAnswer_survey(ctx, field, obj)
+				return res
+			})
+		case "surveyId":
+			out.Values[i] = ec._SurveyAnswer_surveyId(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._SurveyAnswer_updatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._SurveyAnswer_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "updatedBy":
+			out.Values[i] = ec._SurveyAnswer_updatedBy(ctx, field, obj)
+		case "createdBy":
+			out.Values[i] = ec._SurveyAnswer_createdBy(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyAnswerResultTypeImplementors = []string{"SurveyAnswerResultType"}
+
+func (ec *executionContext) _SurveyAnswerResultType(ctx context.Context, sel ast.SelectionSet, obj *SurveyAnswerResultType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, surveyAnswerResultTypeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyAnswerResultType")
+		case "items":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SurveyAnswerResultType_items(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "count":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SurveyAnswerResultType_count(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4861,92 +4861,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAnswer2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx context.Context, sel ast.SelectionSet, v Answer) graphql.Marshaler {
-	return ec._Answer(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAnswer2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx context.Context, sel ast.SelectionSet, v []*Answer) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx context.Context, sel ast.SelectionSet, v *Answer) graphql.Marshaler {
-	if v == nil {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Answer(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNAnswerCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	return v.(map[string]interface{}), nil
-}
-
-func (ec *executionContext) unmarshalNAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx context.Context, v interface{}) (AnswerFilterType, error) {
-	return ec.unmarshalInputAnswerFilterType(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx context.Context, v interface{}) (*AnswerFilterType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalNAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx context.Context, v interface{}) (AnswerSortType, error) {
-	var res AnswerSortType
-	return res, res.UnmarshalGQL(v)
-}
-
-func (ec *executionContext) marshalNAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx context.Context, sel ast.SelectionSet, v AnswerSortType) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalNAnswerUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	return v.(map[string]interface{}), nil
-}
-
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -5052,6 +4966,92 @@ func (ec *executionContext) marshalNSurvey2ᚖgithubᚗcomᚋjakubknejzlikᚋsur
 		return graphql.Null
 	}
 	return ec._Survey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSurveyAnswer2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx context.Context, sel ast.SelectionSet, v SurveyAnswer) graphql.Marshaler {
+	return ec._SurveyAnswer(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSurveyAnswer2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx context.Context, sel ast.SelectionSet, v []*SurveyAnswer) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx context.Context, sel ast.SelectionSet, v *SurveyAnswer) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SurveyAnswer(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSurveyAnswerCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	return v.(map[string]interface{}), nil
+}
+
+func (ec *executionContext) unmarshalNSurveyAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx context.Context, v interface{}) (SurveyAnswerFilterType, error) {
+	return ec.unmarshalInputSurveyAnswerFilterType(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx context.Context, v interface{}) (*SurveyAnswerFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalNSurveyAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) unmarshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) (SurveyAnswerSortType, error) {
+	var res SurveyAnswerSortType
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, sel ast.SelectionSet, v SurveyAnswerSortType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNSurveyAnswerUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	return v.(map[string]interface{}), nil
 }
 
 func (ec *executionContext) unmarshalNSurveyCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
@@ -5347,120 +5347,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOAnswer2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx context.Context, sel ast.SelectionSet, v Answer) graphql.Marshaler {
-	return ec._Answer(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalOAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswer(ctx context.Context, sel ast.SelectionSet, v *Answer) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Answer(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx context.Context, v interface{}) (AnswerFilterType, error) {
-	return ec.unmarshalInputAnswerFilterType(ctx, v)
-}
-
-func (ec *executionContext) unmarshalOAnswerFilterType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx context.Context, v interface{}) ([]*AnswerFilterType, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*AnswerFilterType, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx context.Context, v interface{}) (*AnswerFilterType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerFilterType(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOAnswerResultType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerResultType(ctx context.Context, sel ast.SelectionSet, v AnswerResultType) graphql.Marshaler {
-	return ec._AnswerResultType(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalOAnswerResultType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerResultType(ctx context.Context, sel ast.SelectionSet, v *AnswerResultType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._AnswerResultType(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx context.Context, v interface{}) ([]AnswerSortType, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]AnswerSortType, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx context.Context, sel ast.SelectionSet, v []AnswerSortType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐAnswerSortType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -5658,6 +5544,120 @@ func (ec *executionContext) marshalOSurvey2ᚖgithubᚗcomᚋjakubknejzlikᚋsur
 		return graphql.Null
 	}
 	return ec._Survey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSurveyAnswer2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx context.Context, sel ast.SelectionSet, v SurveyAnswer) graphql.Marshaler {
+	return ec._SurveyAnswer(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx context.Context, sel ast.SelectionSet, v *SurveyAnswer) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SurveyAnswer(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSurveyAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx context.Context, v interface{}) (SurveyAnswerFilterType, error) {
+	return ec.unmarshalInputSurveyAnswerFilterType(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOSurveyAnswerFilterType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx context.Context, v interface{}) ([]*SurveyAnswerFilterType, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*SurveyAnswerFilterType, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx context.Context, v interface{}) (*SurveyAnswerFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOSurveyAnswerFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOSurveyAnswerResultType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerResultType(ctx context.Context, sel ast.SelectionSet, v SurveyAnswerResultType) graphql.Marshaler {
+	return ec._SurveyAnswerResultType(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOSurveyAnswerResultType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerResultType(ctx context.Context, sel ast.SelectionSet, v *SurveyAnswerResultType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SurveyAnswerResultType(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) ([]SurveyAnswerSortType, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]SurveyAnswerSortType, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, sel ast.SelectionSet, v []SurveyAnswerSortType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) unmarshalOSurveyFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyFilterType(ctx context.Context, v interface{}) (SurveyFilterType, error) {

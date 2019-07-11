@@ -35,12 +35,12 @@ func (r *GeneratedResolver) Survey() SurveyResolver {
 	return &GeneratedSurveyResolver{r}
 }
 
-func (r *GeneratedResolver) AnswerResultType() AnswerResultTypeResolver {
-	return &GeneratedAnswerResultTypeResolver{r}
+func (r *GeneratedResolver) SurveyAnswerResultType() SurveyAnswerResultTypeResolver {
+	return &GeneratedSurveyAnswerResultTypeResolver{r}
 }
 
-func (r *GeneratedResolver) Answer() AnswerResolver {
-	return &GeneratedAnswerResolver{r}
+func (r *GeneratedResolver) SurveyAnswer() SurveyAnswerResolver {
+	return &GeneratedSurveyAnswerResolver{r}
 }
 
 type GeneratedMutationResolver struct{ *GeneratedResolver }
@@ -81,7 +81,7 @@ func (r *GeneratedMutationResolver) CreateSurvey(ctx context.Context, input map[
 	}
 
 	if ids, ok := input["answersIds"].([]interface{}); ok {
-		items := []Answer{}
+		items := []SurveyAnswer{}
 		tx.Find(&items, "id IN (?)", ids)
 		association := tx.Model(&item).Association("Answers")
 		association.Replace(items)
@@ -144,7 +144,7 @@ func (r *GeneratedMutationResolver) UpdateSurvey(ctx context.Context, id string,
 	}
 
 	if ids, ok := input["answersIds"].([]interface{}); ok {
-		items := []Answer{}
+		items := []SurveyAnswer{}
 		tx.Find(&items, "id IN (?)", ids)
 		association := tx.Model(&item).Association("Answers")
 		association.Replace(items)
@@ -181,21 +181,21 @@ func (r *GeneratedMutationResolver) DeleteSurvey(ctx context.Context, id string)
 	return
 }
 
-func (r *GeneratedMutationResolver) CreateAnswer(ctx context.Context, input map[string]interface{}) (item *Answer, err error) {
+func (r *GeneratedMutationResolver) CreateSurveyAnswer(ctx context.Context, input map[string]interface{}) (item *SurveyAnswer, err error) {
 	principalID := getPrincipalID(ctx)
 	now := time.Now()
-	item = &Answer{ID: uuid.Must(uuid.NewV4()).String(), CreatedAt: now, CreatedBy: principalID}
+	item = &SurveyAnswer{ID: uuid.Must(uuid.NewV4()).String(), CreatedAt: now, CreatedBy: principalID}
 	tx := r.DB.db.Begin()
 
 	event := events.NewEvent(events.EventMetadata{
 		Type:        events.EventTypeCreated,
-		Entity:      "Answer",
+		Entity:      "SurveyAnswer",
 		EntityID:    item.ID,
 		Date:        now,
 		PrincipalID: principalID,
 	})
 
-	var changes AnswerChanges
+	var changes SurveyAnswerChanges
 	err = ApplyChanges(input, &changes)
 	if err != nil {
 		return
@@ -243,21 +243,21 @@ func (r *GeneratedMutationResolver) CreateAnswer(ctx context.Context, input map[
 
 	return
 }
-func (r *GeneratedMutationResolver) UpdateAnswer(ctx context.Context, id string, input map[string]interface{}) (item *Answer, err error) {
+func (r *GeneratedMutationResolver) UpdateSurveyAnswer(ctx context.Context, id string, input map[string]interface{}) (item *SurveyAnswer, err error) {
 	principalID := getPrincipalID(ctx)
-	item = &Answer{}
+	item = &SurveyAnswer{}
 	now := time.Now()
 	tx := r.DB.db.Begin()
 
 	event := events.NewEvent(events.EventMetadata{
 		Type:        events.EventTypeCreated,
-		Entity:      "Answer",
+		Entity:      "SurveyAnswer",
 		EntityID:    item.ID,
 		Date:        now,
 		PrincipalID: principalID,
 	})
 
-	var changes AnswerChanges
+	var changes SurveyAnswerChanges
 	err = ApplyChanges(input, &changes)
 	if err != nil {
 		return
@@ -313,14 +313,14 @@ func (r *GeneratedMutationResolver) UpdateAnswer(ctx context.Context, id string,
 
 	return
 }
-func (r *GeneratedMutationResolver) DeleteAnswer(ctx context.Context, id string) (item *Answer, err error) {
-	item = &Answer{}
+func (r *GeneratedMutationResolver) DeleteSurveyAnswer(ctx context.Context, id string) (item *SurveyAnswer, err error) {
+	item = &SurveyAnswer{}
 	err = resolvers.GetItem(ctx, r.DB.Query(), item, &id)
 	if err != nil {
 		return
 	}
 
-	err = r.DB.Query().Delete(item, "answers.id = ?", id).Error
+	err = r.DB.Query().Delete(item, "survey_answers.id = ?", id).Error
 
 	return
 }
@@ -384,20 +384,20 @@ func (r *GeneratedSurveyResultTypeResolver) Count(ctx context.Context, obj *Surv
 
 type GeneratedSurveyResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedSurveyResolver) Answers(ctx context.Context, obj *Survey) (res []*Answer, err error) {
+func (r *GeneratedSurveyResolver) Answers(ctx context.Context, obj *Survey) (res []*SurveyAnswer, err error) {
 
-	items := []*Answer{}
+	items := []*SurveyAnswer{}
 	err = r.DB.Query().Model(obj).Related(&items, "Answers").Error
 	res = items
 
 	return
 }
 
-func (r *GeneratedQueryResolver) Answer(ctx context.Context, id *string, q *string, filter *AnswerFilterType) (*Answer, error) {
-	query := AnswerQueryFilter{q}
+func (r *GeneratedQueryResolver) SurveyAnswer(ctx context.Context, id *string, q *string, filter *SurveyAnswerFilterType) (*SurveyAnswer, error) {
+	query := SurveyAnswerQueryFilter{q}
 	offset := 0
 	limit := 1
-	rt := &AnswerResultType{
+	rt := &SurveyAnswerResultType{
 		EntityResultType: resolvers.EntityResultType{
 			Offset: &offset,
 			Limit:  &limit,
@@ -407,11 +407,11 @@ func (r *GeneratedQueryResolver) Answer(ctx context.Context, id *string, q *stri
 	}
 	qb := r.DB.Query()
 	if id != nil {
-		qb = qb.Where("answers.id = ?", *id)
+		qb = qb.Where("survey_answers.id = ?", *id)
 	}
 
-	var items []*Answer
-	err := rt.GetItems(ctx, qb, "answers", &items)
+	var items []*SurveyAnswer
+	err := rt.GetItems(ctx, qb, "survey_answers", &items)
 	if err != nil {
 		return nil, err
 	}
@@ -420,13 +420,13 @@ func (r *GeneratedQueryResolver) Answer(ctx context.Context, id *string, q *stri
 	}
 	return items[0], err
 }
-func (r *GeneratedQueryResolver) Answers(ctx context.Context, offset *int, limit *int, q *string, sort []AnswerSortType, filter *AnswerFilterType) (*AnswerResultType, error) {
+func (r *GeneratedQueryResolver) SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error) {
 	_sort := []resolvers.EntitySort{}
 	for _, s := range sort {
 		_sort = append(_sort, s)
 	}
-	query := AnswerQueryFilter{q}
-	return &AnswerResultType{
+	query := SurveyAnswerQueryFilter{q}
+	return &SurveyAnswerResultType{
 		EntityResultType: resolvers.EntityResultType{
 			Offset: offset,
 			Limit:  limit,
@@ -437,20 +437,20 @@ func (r *GeneratedQueryResolver) Answers(ctx context.Context, offset *int, limit
 	}, nil
 }
 
-type GeneratedAnswerResultTypeResolver struct{ *GeneratedResolver }
+type GeneratedSurveyAnswerResultTypeResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedAnswerResultTypeResolver) Items(ctx context.Context, obj *AnswerResultType) (items []*Answer, err error) {
-	err = obj.GetItems(ctx, r.DB.db, "answers", &items)
+func (r *GeneratedSurveyAnswerResultTypeResolver) Items(ctx context.Context, obj *SurveyAnswerResultType) (items []*SurveyAnswer, err error) {
+	err = obj.GetItems(ctx, r.DB.db, "survey_answers", &items)
 	return
 }
 
-func (r *GeneratedAnswerResultTypeResolver) Count(ctx context.Context, obj *AnswerResultType) (count int, err error) {
-	return obj.GetCount(ctx, r.DB.db, &Answer{})
+func (r *GeneratedSurveyAnswerResultTypeResolver) Count(ctx context.Context, obj *SurveyAnswerResultType) (count int, err error) {
+	return obj.GetCount(ctx, r.DB.db, &SurveyAnswer{})
 }
 
-type GeneratedAnswerResolver struct{ *GeneratedResolver }
+type GeneratedSurveyAnswerResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedAnswerResolver) Survey(ctx context.Context, obj *Answer) (res *Survey, err error) {
+func (r *GeneratedSurveyAnswerResolver) Survey(ctx context.Context, obj *SurveyAnswer) (res *Survey, err error) {
 
 	item := Survey{}
 	_res := r.DB.Query().Model(obj).Related(&item, "Survey")

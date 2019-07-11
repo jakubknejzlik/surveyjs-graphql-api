@@ -32,20 +32,20 @@ models:
   SurveyUpdateInput:
     model: "map[string]interface{}"
   
-  AnswerResultType:
-    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.AnswerResultType
+  SurveyAnswerResultType:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyAnswerResultType
     fields:
       count:
         resolver: true
       items:
         resolver: true
-  Answer:
-    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.Answer
+  SurveyAnswer:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyAnswer
     fields:
       survey:
         resolver: true
-  AnswerCreateInput:
+  SurveyAnswerCreateInput:
     model: "map[string]interface{}"
-  AnswerUpdateInput:
+  SurveyAnswerUpdateInput:
     model: "map[string]interface{}"
   

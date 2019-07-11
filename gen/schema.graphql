@@ -10,31 +10,31 @@ schema {
 type Query {
   survey(id: ID, q: String, filter: SurveyFilterType): Survey
   surveys(offset: Int, limit: Int = 30, q: String, sort: [SurveySortType!], filter: SurveyFilterType): SurveyResultType
-  answer(id: ID, q: String, filter: AnswerFilterType): Answer
-  answers(offset: Int, limit: Int = 30, q: String, sort: [AnswerSortType!], filter: AnswerFilterType): AnswerResultType
+  surveyAnswer(id: ID, q: String, filter: SurveyAnswerFilterType): SurveyAnswer
+  surveyAnswers(offset: Int, limit: Int = 30, q: String, sort: [SurveyAnswerSortType!], filter: SurveyAnswerFilterType): SurveyAnswerResultType
 }
 
 type Mutation {
   createSurvey(input: SurveyCreateInput!): Survey!
   updateSurvey(id: ID!, input: SurveyUpdateInput!): Survey!
   deleteSurvey(id: ID!): Survey!
-  createAnswer(input: AnswerCreateInput!): Answer!
-  updateAnswer(id: ID!, input: AnswerUpdateInput!): Answer!
-  deleteAnswer(id: ID!): Answer!
+  createSurveyAnswer(input: SurveyAnswerCreateInput!): SurveyAnswer!
+  updateSurveyAnswer(id: ID!, input: SurveyAnswerUpdateInput!): SurveyAnswer!
+  deleteSurveyAnswer(id: ID!): SurveyAnswer!
 }
 
 type Survey {
   id: ID!
   name: String
   content: String
-  answers: [Answer!]!
+  answers: [SurveyAnswer!]!
   updatedAt: Time
   createdAt: Time!
   updatedBy: ID
   createdBy: ID
 }
 
-type Answer {
+type SurveyAnswer {
   id: ID!
   userID: ID!
   completed: Boolean
@@ -135,7 +135,7 @@ input SurveyFilterType {
   createdBy_gte: ID
   createdBy_lte: ID
   createdBy_in: [ID!]
-  answers: AnswerFilterType
+  answers: SurveyAnswerFilterType
 }
 
 type SurveyResultType {
@@ -143,7 +143,7 @@ type SurveyResultType {
   count: Int!
 }
 
-input AnswerCreateInput {
+input SurveyAnswerCreateInput {
   id: ID
   userID: ID!
   completed: Boolean
@@ -151,14 +151,14 @@ input AnswerCreateInput {
   surveyId: ID
 }
 
-input AnswerUpdateInput {
+input SurveyAnswerUpdateInput {
   userID: ID
   completed: Boolean
   content: String
   surveyId: ID
 }
 
-enum AnswerSortType {
+enum SurveyAnswerSortType {
   ID_ASC
   ID_DESC
   USER_ID_ASC
@@ -179,9 +179,9 @@ enum AnswerSortType {
   CREATED_BY_DESC
 }
 
-input AnswerFilterType {
-  AND: [AnswerFilterType!]
-  OR: [AnswerFilterType!]
+input SurveyAnswerFilterType {
+  AND: [SurveyAnswerFilterType!]
+  OR: [SurveyAnswerFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -251,7 +251,7 @@ input AnswerFilterType {
   survey: SurveyFilterType
 }
 
-type AnswerResultType {
-  items: [Answer!]!
+type SurveyAnswerResultType {
+  items: [SurveyAnswer!]!
   count: Int!
 }

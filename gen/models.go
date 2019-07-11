@@ -23,7 +23,7 @@ type Survey struct {
 	UpdatedBy *string    `json:"updatedBy" gorm:"column:updatedBy"`
 	CreatedBy *string    `json:"createdBy" gorm:"column:createdBy"`
 
-	Answers []*Answer `json:"answers" gorm:"foreignkey:SurveyID"`
+	Answers []*SurveyAnswer `json:"answers" gorm:"foreignkey:SurveyID"`
 }
 
 type SurveyChanges struct {
@@ -36,11 +36,11 @@ type SurveyChanges struct {
 	CreatedBy *string
 }
 
-type AnswerResultType struct {
+type SurveyAnswerResultType struct {
 	resolvers.EntityResultType
 }
 
-type Answer struct {
+type SurveyAnswer struct {
 	ID        string     `json:"id" gorm:"column:id;primary_key"`
 	UserID    string     `json:"userID" gorm:"column:userID"`
 	Completed *bool      `json:"completed" gorm:"column:completed"`
@@ -54,7 +54,7 @@ type Answer struct {
 	Survey *Survey `json:"survey"`
 }
 
-type AnswerChanges struct {
+type SurveyAnswerChanges struct {
 	ID        string
 	UserID    string
 	Completed *bool

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/jinzhu/gorm"
 	"github.com/vektah/gqlparser/ast"
 )
 
@@ -13,7 +14,7 @@ type SurveyQueryFilter struct {
 	Query *string
 }
 
-func (qf *SurveyQueryFilter) Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error {
+func (qf *SurveyQueryFilter) Apply(ctx context.Context, dialect gorm.Dialect, wheres *[]string, values *[]interface{}, joins *[]string) error {
 	if qf.Query == nil {
 		return nil
 	}
@@ -26,7 +27,7 @@ func (qf *SurveyQueryFilter) Apply(ctx context.Context, wheres *[]string, values
 
 	queryParts := strings.Split(*qf.Query, " ")
 	for _, part := range queryParts {
-		if err := qf.applyQueryWithFields(fields, part, "surveys", &ors, values, joins); err != nil {
+		if err := qf.applyQueryWithFields(dialect, fields, part, "surveys", &ors, values, joins); err != nil {
 			return err
 		}
 		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
@@ -34,7 +35,7 @@ func (qf *SurveyQueryFilter) Apply(ctx context.Context, wheres *[]string, values
 	return nil
 }
 
-func (qf *SurveyQueryFilter) applyQueryWithFields(fields []*ast.Field, query, alias string, ors *[]string, values *[]interface{}, joins *[]string) error {
+func (qf *SurveyQueryFilter) applyQueryWithFields(dialect gorm.Dialect, fields []*ast.Field, query, alias string, ors *[]string, values *[]interface{}, joins *[]string) error {
 	if len(fields) == 0 {
 		return nil
 	}
@@ -45,27 +46,27 @@ func (qf *SurveyQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	}
 
 	if _, ok := fieldsMap["name"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]sname LIKE ? OR %[1]sname LIKE ?", alias+"."))
+		*ors = append(*ors, fmt.Sprintf("%[1]s"+dialect.Quote("name")+" LIKE ? OR %[1]s"+dialect.Quote("name")+" LIKE ?", dialect.Quote(alias)+"."))
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
 	if _, ok := fieldsMap["content"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]scontent LIKE ? OR %[1]scontent LIKE ?", alias+"."))
+		*ors = append(*ors, fmt.Sprintf("%[1]s"+dialect.Quote("content")+" LIKE ? OR %[1]s"+dialect.Quote("content")+" LIKE ?", dialect.Quote(alias)+"."))
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
 	if f, ok := fieldsMap["answers"]; ok {
 		_fields := []*ast.Field{}
 		_alias := alias + "_answers"
-		*joins = append(*joins, "LEFT JOIN answers "+_alias+" ON "+_alias+".surveyId = "+alias+".id")
+		*joins = append(*joins, "LEFT JOIN "+dialect.Quote("survey_answers")+" "+dialect.Quote(_alias)+" ON "+dialect.Quote(_alias)+"."+dialect.Quote("surveyId")+" = "+dialect.Quote(alias)+".id")
 
 		for _, s := range f.SelectionSet {
 			if f, ok := s.(*ast.Field); ok {
 				_fields = append(_fields, f)
 			}
 		}
-		q := AnswerQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(_fields, query, _alias, ors, values, joins)
+		q := SurveyAnswerQueryFilter{qf.Query}
+		err := q.applyQueryWithFields(dialect, _fields, query, _alias, ors, values, joins)
 		if err != nil {
 			return err
 		}
@@ -74,11 +75,11 @@ func (qf *SurveyQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	return nil
 }
 
-type AnswerQueryFilter struct {
+type SurveyAnswerQueryFilter struct {
 	Query *string
 }
 
-func (qf *AnswerQueryFilter) Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error {
+func (qf *SurveyAnswerQueryFilter) Apply(ctx context.Context, dialect gorm.Dialect, wheres *[]string, values *[]interface{}, joins *[]string) error {
 	if qf.Query == nil {
 		return nil
 	}
@@ -91,7 +92,7 @@ func (qf *AnswerQueryFilter) Apply(ctx context.Context, wheres *[]string, values
 
 	queryParts := strings.Split(*qf.Query, " ")
 	for _, part := range queryParts {
-		if err := qf.applyQueryWithFields(fields, part, "answers", &ors, values, joins); err != nil {
+		if err := qf.applyQueryWithFields(dialect, fields, part, "survey_answers", &ors, values, joins); err != nil {
 			return err
 		}
 		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
@@ -99,7 +100,7 @@ func (qf *AnswerQueryFilter) Apply(ctx context.Context, wheres *[]string, values
 	return nil
 }
 
-func (qf *AnswerQueryFilter) applyQueryWithFields(fields []*ast.Field, query, alias string, ors *[]string, values *[]interface{}, joins *[]string) error {
+func (qf *SurveyAnswerQueryFilter) applyQueryWithFields(dialect gorm.Dialect, fields []*ast.Field, query, alias string, ors *[]string, values *[]interface{}, joins *[]string) error {
 	if len(fields) == 0 {
 		return nil
 	}
@@ -110,14 +111,14 @@ func (qf *AnswerQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 	}
 
 	if _, ok := fieldsMap["content"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]scontent LIKE ? OR %[1]scontent LIKE ?", alias+"."))
+		*ors = append(*ors, fmt.Sprintf("%[1]s"+dialect.Quote("content")+" LIKE ? OR %[1]s"+dialect.Quote("content")+" LIKE ?", dialect.Quote(alias)+"."))
 		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
 	}
 
 	if f, ok := fieldsMap["survey"]; ok {
 		_fields := []*ast.Field{}
 		_alias := alias + "_survey"
-		*joins = append(*joins, "LEFT JOIN surveys "+_alias+" ON "+_alias+".id = "+alias+".surveyId")
+		*joins = append(*joins, "LEFT JOIN "+dialect.Quote("surveys")+" "+dialect.Quote(_alias)+" ON "+dialect.Quote(_alias)+".id = "+alias+"."+dialect.Quote("surveyId"))
 
 		for _, s := range f.SelectionSet {
 			if f, ok := s.(*ast.Field); ok {
@@ -125,7 +126,7 @@ func (qf *AnswerQueryFilter) applyQueryWithFields(fields []*ast.Field, query, al
 			}
 		}
 		q := SurveyQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(_fields, query, _alias, ors, values, joins)
+		err := q.applyQueryWithFields(dialect, _fields, query, _alias, ors, values, joins)
 		if err != nil {
 			return err
 		}

@@ -9,209 +9,209 @@ import (
 	"time"
 )
 
-type AnswerFilterType struct {
-	And           []*AnswerFilterType `json:"AND"`
-	Or            []*AnswerFilterType `json:"OR"`
-	ID            *string             `json:"id"`
-	IDNe          *string             `json:"id_ne"`
-	IDGt          *string             `json:"id_gt"`
-	IDLt          *string             `json:"id_lt"`
-	IDGte         *string             `json:"id_gte"`
-	IDLte         *string             `json:"id_lte"`
-	IDIn          []string            `json:"id_in"`
-	UserID        *string             `json:"userID"`
-	UserIDNe      *string             `json:"userID_ne"`
-	UserIDGt      *string             `json:"userID_gt"`
-	UserIDLt      *string             `json:"userID_lt"`
-	UserIDGte     *string             `json:"userID_gte"`
-	UserIDLte     *string             `json:"userID_lte"`
-	UserIDIn      []string            `json:"userID_in"`
-	Completed     *bool               `json:"completed"`
-	CompletedNe   *bool               `json:"completed_ne"`
-	CompletedGt   *bool               `json:"completed_gt"`
-	CompletedLt   *bool               `json:"completed_lt"`
-	CompletedGte  *bool               `json:"completed_gte"`
-	CompletedLte  *bool               `json:"completed_lte"`
-	CompletedIn   []bool              `json:"completed_in"`
-	Content       *string             `json:"content"`
-	ContentNe     *string             `json:"content_ne"`
-	ContentGt     *string             `json:"content_gt"`
-	ContentLt     *string             `json:"content_lt"`
-	ContentGte    *string             `json:"content_gte"`
-	ContentLte    *string             `json:"content_lte"`
-	ContentIn     []string            `json:"content_in"`
-	ContentLike   *string             `json:"content_like"`
-	ContentPrefix *string             `json:"content_prefix"`
-	ContentSuffix *string             `json:"content_suffix"`
-	SurveyID      *string             `json:"surveyId"`
-	SurveyIDNe    *string             `json:"surveyId_ne"`
-	SurveyIDGt    *string             `json:"surveyId_gt"`
-	SurveyIDLt    *string             `json:"surveyId_lt"`
-	SurveyIDGte   *string             `json:"surveyId_gte"`
-	SurveyIDLte   *string             `json:"surveyId_lte"`
-	SurveyIDIn    []string            `json:"surveyId_in"`
-	UpdatedAt     *time.Time          `json:"updatedAt"`
-	UpdatedAtNe   *time.Time          `json:"updatedAt_ne"`
-	UpdatedAtGt   *time.Time          `json:"updatedAt_gt"`
-	UpdatedAtLt   *time.Time          `json:"updatedAt_lt"`
-	UpdatedAtGte  *time.Time          `json:"updatedAt_gte"`
-	UpdatedAtLte  *time.Time          `json:"updatedAt_lte"`
-	UpdatedAtIn   []*time.Time        `json:"updatedAt_in"`
-	CreatedAt     *time.Time          `json:"createdAt"`
-	CreatedAtNe   *time.Time          `json:"createdAt_ne"`
-	CreatedAtGt   *time.Time          `json:"createdAt_gt"`
-	CreatedAtLt   *time.Time          `json:"createdAt_lt"`
-	CreatedAtGte  *time.Time          `json:"createdAt_gte"`
-	CreatedAtLte  *time.Time          `json:"createdAt_lte"`
-	CreatedAtIn   []*time.Time        `json:"createdAt_in"`
-	UpdatedBy     *string             `json:"updatedBy"`
-	UpdatedByNe   *string             `json:"updatedBy_ne"`
-	UpdatedByGt   *string             `json:"updatedBy_gt"`
-	UpdatedByLt   *string             `json:"updatedBy_lt"`
-	UpdatedByGte  *string             `json:"updatedBy_gte"`
-	UpdatedByLte  *string             `json:"updatedBy_lte"`
-	UpdatedByIn   []string            `json:"updatedBy_in"`
-	CreatedBy     *string             `json:"createdBy"`
-	CreatedByNe   *string             `json:"createdBy_ne"`
-	CreatedByGt   *string             `json:"createdBy_gt"`
-	CreatedByLt   *string             `json:"createdBy_lt"`
-	CreatedByGte  *string             `json:"createdBy_gte"`
-	CreatedByLte  *string             `json:"createdBy_lte"`
-	CreatedByIn   []string            `json:"createdBy_in"`
-	Survey        *SurveyFilterType   `json:"survey"`
+type SurveyAnswerFilterType struct {
+	And           []*SurveyAnswerFilterType `json:"AND"`
+	Or            []*SurveyAnswerFilterType `json:"OR"`
+	ID            *string                   `json:"id"`
+	IDNe          *string                   `json:"id_ne"`
+	IDGt          *string                   `json:"id_gt"`
+	IDLt          *string                   `json:"id_lt"`
+	IDGte         *string                   `json:"id_gte"`
+	IDLte         *string                   `json:"id_lte"`
+	IDIn          []string                  `json:"id_in"`
+	UserID        *string                   `json:"userID"`
+	UserIDNe      *string                   `json:"userID_ne"`
+	UserIDGt      *string                   `json:"userID_gt"`
+	UserIDLt      *string                   `json:"userID_lt"`
+	UserIDGte     *string                   `json:"userID_gte"`
+	UserIDLte     *string                   `json:"userID_lte"`
+	UserIDIn      []string                  `json:"userID_in"`
+	Completed     *bool                     `json:"completed"`
+	CompletedNe   *bool                     `json:"completed_ne"`
+	CompletedGt   *bool                     `json:"completed_gt"`
+	CompletedLt   *bool                     `json:"completed_lt"`
+	CompletedGte  *bool                     `json:"completed_gte"`
+	CompletedLte  *bool                     `json:"completed_lte"`
+	CompletedIn   []bool                    `json:"completed_in"`
+	Content       *string                   `json:"content"`
+	ContentNe     *string                   `json:"content_ne"`
+	ContentGt     *string                   `json:"content_gt"`
+	ContentLt     *string                   `json:"content_lt"`
+	ContentGte    *string                   `json:"content_gte"`
+	ContentLte    *string                   `json:"content_lte"`
+	ContentIn     []string                  `json:"content_in"`
+	ContentLike   *string                   `json:"content_like"`
+	ContentPrefix *string                   `json:"content_prefix"`
+	ContentSuffix *string                   `json:"content_suffix"`
+	SurveyID      *string                   `json:"surveyId"`
+	SurveyIDNe    *string                   `json:"surveyId_ne"`
+	SurveyIDGt    *string                   `json:"surveyId_gt"`
+	SurveyIDLt    *string                   `json:"surveyId_lt"`
+	SurveyIDGte   *string                   `json:"surveyId_gte"`
+	SurveyIDLte   *string                   `json:"surveyId_lte"`
+	SurveyIDIn    []string                  `json:"surveyId_in"`
+	UpdatedAt     *time.Time                `json:"updatedAt"`
+	UpdatedAtNe   *time.Time                `json:"updatedAt_ne"`
+	UpdatedAtGt   *time.Time                `json:"updatedAt_gt"`
+	UpdatedAtLt   *time.Time                `json:"updatedAt_lt"`
+	UpdatedAtGte  *time.Time                `json:"updatedAt_gte"`
+	UpdatedAtLte  *time.Time                `json:"updatedAt_lte"`
+	UpdatedAtIn   []*time.Time              `json:"updatedAt_in"`
+	CreatedAt     *time.Time                `json:"createdAt"`
+	CreatedAtNe   *time.Time                `json:"createdAt_ne"`
+	CreatedAtGt   *time.Time                `json:"createdAt_gt"`
+	CreatedAtLt   *time.Time                `json:"createdAt_lt"`
+	CreatedAtGte  *time.Time                `json:"createdAt_gte"`
+	CreatedAtLte  *time.Time                `json:"createdAt_lte"`
+	CreatedAtIn   []*time.Time              `json:"createdAt_in"`
+	UpdatedBy     *string                   `json:"updatedBy"`
+	UpdatedByNe   *string                   `json:"updatedBy_ne"`
+	UpdatedByGt   *string                   `json:"updatedBy_gt"`
+	UpdatedByLt   *string                   `json:"updatedBy_lt"`
+	UpdatedByGte  *string                   `json:"updatedBy_gte"`
+	UpdatedByLte  *string                   `json:"updatedBy_lte"`
+	UpdatedByIn   []string                  `json:"updatedBy_in"`
+	CreatedBy     *string                   `json:"createdBy"`
+	CreatedByNe   *string                   `json:"createdBy_ne"`
+	CreatedByGt   *string                   `json:"createdBy_gt"`
+	CreatedByLt   *string                   `json:"createdBy_lt"`
+	CreatedByGte  *string                   `json:"createdBy_gte"`
+	CreatedByLte  *string                   `json:"createdBy_lte"`
+	CreatedByIn   []string                  `json:"createdBy_in"`
+	Survey        *SurveyFilterType         `json:"survey"`
 }
 
 type SurveyFilterType struct {
-	And           []*SurveyFilterType `json:"AND"`
-	Or            []*SurveyFilterType `json:"OR"`
-	ID            *string             `json:"id"`
-	IDNe          *string             `json:"id_ne"`
-	IDGt          *string             `json:"id_gt"`
-	IDLt          *string             `json:"id_lt"`
-	IDGte         *string             `json:"id_gte"`
-	IDLte         *string             `json:"id_lte"`
-	IDIn          []string            `json:"id_in"`
-	Name          *string             `json:"name"`
-	NameNe        *string             `json:"name_ne"`
-	NameGt        *string             `json:"name_gt"`
-	NameLt        *string             `json:"name_lt"`
-	NameGte       *string             `json:"name_gte"`
-	NameLte       *string             `json:"name_lte"`
-	NameIn        []string            `json:"name_in"`
-	NameLike      *string             `json:"name_like"`
-	NamePrefix    *string             `json:"name_prefix"`
-	NameSuffix    *string             `json:"name_suffix"`
-	Content       *string             `json:"content"`
-	ContentNe     *string             `json:"content_ne"`
-	ContentGt     *string             `json:"content_gt"`
-	ContentLt     *string             `json:"content_lt"`
-	ContentGte    *string             `json:"content_gte"`
-	ContentLte    *string             `json:"content_lte"`
-	ContentIn     []string            `json:"content_in"`
-	ContentLike   *string             `json:"content_like"`
-	ContentPrefix *string             `json:"content_prefix"`
-	ContentSuffix *string             `json:"content_suffix"`
-	UpdatedAt     *time.Time          `json:"updatedAt"`
-	UpdatedAtNe   *time.Time          `json:"updatedAt_ne"`
-	UpdatedAtGt   *time.Time          `json:"updatedAt_gt"`
-	UpdatedAtLt   *time.Time          `json:"updatedAt_lt"`
-	UpdatedAtGte  *time.Time          `json:"updatedAt_gte"`
-	UpdatedAtLte  *time.Time          `json:"updatedAt_lte"`
-	UpdatedAtIn   []*time.Time        `json:"updatedAt_in"`
-	CreatedAt     *time.Time          `json:"createdAt"`
-	CreatedAtNe   *time.Time          `json:"createdAt_ne"`
-	CreatedAtGt   *time.Time          `json:"createdAt_gt"`
-	CreatedAtLt   *time.Time          `json:"createdAt_lt"`
-	CreatedAtGte  *time.Time          `json:"createdAt_gte"`
-	CreatedAtLte  *time.Time          `json:"createdAt_lte"`
-	CreatedAtIn   []*time.Time        `json:"createdAt_in"`
-	UpdatedBy     *string             `json:"updatedBy"`
-	UpdatedByNe   *string             `json:"updatedBy_ne"`
-	UpdatedByGt   *string             `json:"updatedBy_gt"`
-	UpdatedByLt   *string             `json:"updatedBy_lt"`
-	UpdatedByGte  *string             `json:"updatedBy_gte"`
-	UpdatedByLte  *string             `json:"updatedBy_lte"`
-	UpdatedByIn   []string            `json:"updatedBy_in"`
-	CreatedBy     *string             `json:"createdBy"`
-	CreatedByNe   *string             `json:"createdBy_ne"`
-	CreatedByGt   *string             `json:"createdBy_gt"`
-	CreatedByLt   *string             `json:"createdBy_lt"`
-	CreatedByGte  *string             `json:"createdBy_gte"`
-	CreatedByLte  *string             `json:"createdBy_lte"`
-	CreatedByIn   []string            `json:"createdBy_in"`
-	Answers       *AnswerFilterType   `json:"answers"`
+	And           []*SurveyFilterType     `json:"AND"`
+	Or            []*SurveyFilterType     `json:"OR"`
+	ID            *string                 `json:"id"`
+	IDNe          *string                 `json:"id_ne"`
+	IDGt          *string                 `json:"id_gt"`
+	IDLt          *string                 `json:"id_lt"`
+	IDGte         *string                 `json:"id_gte"`
+	IDLte         *string                 `json:"id_lte"`
+	IDIn          []string                `json:"id_in"`
+	Name          *string                 `json:"name"`
+	NameNe        *string                 `json:"name_ne"`
+	NameGt        *string                 `json:"name_gt"`
+	NameLt        *string                 `json:"name_lt"`
+	NameGte       *string                 `json:"name_gte"`
+	NameLte       *string                 `json:"name_lte"`
+	NameIn        []string                `json:"name_in"`
+	NameLike      *string                 `json:"name_like"`
+	NamePrefix    *string                 `json:"name_prefix"`
+	NameSuffix    *string                 `json:"name_suffix"`
+	Content       *string                 `json:"content"`
+	ContentNe     *string                 `json:"content_ne"`
+	ContentGt     *string                 `json:"content_gt"`
+	ContentLt     *string                 `json:"content_lt"`
+	ContentGte    *string                 `json:"content_gte"`
+	ContentLte    *string                 `json:"content_lte"`
+	ContentIn     []string                `json:"content_in"`
+	ContentLike   *string                 `json:"content_like"`
+	ContentPrefix *string                 `json:"content_prefix"`
+	ContentSuffix *string                 `json:"content_suffix"`
+	UpdatedAt     *time.Time              `json:"updatedAt"`
+	UpdatedAtNe   *time.Time              `json:"updatedAt_ne"`
+	UpdatedAtGt   *time.Time              `json:"updatedAt_gt"`
+	UpdatedAtLt   *time.Time              `json:"updatedAt_lt"`
+	UpdatedAtGte  *time.Time              `json:"updatedAt_gte"`
+	UpdatedAtLte  *time.Time              `json:"updatedAt_lte"`
+	UpdatedAtIn   []*time.Time            `json:"updatedAt_in"`
+	CreatedAt     *time.Time              `json:"createdAt"`
+	CreatedAtNe   *time.Time              `json:"createdAt_ne"`
+	CreatedAtGt   *time.Time              `json:"createdAt_gt"`
+	CreatedAtLt   *time.Time              `json:"createdAt_lt"`
+	CreatedAtGte  *time.Time              `json:"createdAt_gte"`
+	CreatedAtLte  *time.Time              `json:"createdAt_lte"`
+	CreatedAtIn   []*time.Time            `json:"createdAt_in"`
+	UpdatedBy     *string                 `json:"updatedBy"`
+	UpdatedByNe   *string                 `json:"updatedBy_ne"`
+	UpdatedByGt   *string                 `json:"updatedBy_gt"`
+	UpdatedByLt   *string                 `json:"updatedBy_lt"`
+	UpdatedByGte  *string                 `json:"updatedBy_gte"`
+	UpdatedByLte  *string                 `json:"updatedBy_lte"`
+	UpdatedByIn   []string                `json:"updatedBy_in"`
+	CreatedBy     *string                 `json:"createdBy"`
+	CreatedByNe   *string                 `json:"createdBy_ne"`
+	CreatedByGt   *string                 `json:"createdBy_gt"`
+	CreatedByLt   *string                 `json:"createdBy_lt"`
+	CreatedByGte  *string                 `json:"createdBy_gte"`
+	CreatedByLte  *string                 `json:"createdBy_lte"`
+	CreatedByIn   []string                `json:"createdBy_in"`
+	Answers       *SurveyAnswerFilterType `json:"answers"`
 }
 
-type AnswerSortType string
+type SurveyAnswerSortType string
 
 const (
-	AnswerSortTypeIDAsc         AnswerSortType = "ID_ASC"
-	AnswerSortTypeIDDesc        AnswerSortType = "ID_DESC"
-	AnswerSortTypeUserIDAsc     AnswerSortType = "USER_ID_ASC"
-	AnswerSortTypeUserIDDesc    AnswerSortType = "USER_ID_DESC"
-	AnswerSortTypeCompletedAsc  AnswerSortType = "COMPLETED_ASC"
-	AnswerSortTypeCompletedDesc AnswerSortType = "COMPLETED_DESC"
-	AnswerSortTypeContentAsc    AnswerSortType = "CONTENT_ASC"
-	AnswerSortTypeContentDesc   AnswerSortType = "CONTENT_DESC"
-	AnswerSortTypeSurveyIDAsc   AnswerSortType = "SURVEY_ID_ASC"
-	AnswerSortTypeSurveyIDDesc  AnswerSortType = "SURVEY_ID_DESC"
-	AnswerSortTypeUpdatedAtAsc  AnswerSortType = "UPDATED_AT_ASC"
-	AnswerSortTypeUpdatedAtDesc AnswerSortType = "UPDATED_AT_DESC"
-	AnswerSortTypeCreatedAtAsc  AnswerSortType = "CREATED_AT_ASC"
-	AnswerSortTypeCreatedAtDesc AnswerSortType = "CREATED_AT_DESC"
-	AnswerSortTypeUpdatedByAsc  AnswerSortType = "UPDATED_BY_ASC"
-	AnswerSortTypeUpdatedByDesc AnswerSortType = "UPDATED_BY_DESC"
-	AnswerSortTypeCreatedByAsc  AnswerSortType = "CREATED_BY_ASC"
-	AnswerSortTypeCreatedByDesc AnswerSortType = "CREATED_BY_DESC"
+	SurveyAnswerSortTypeIDAsc         SurveyAnswerSortType = "ID_ASC"
+	SurveyAnswerSortTypeIDDesc        SurveyAnswerSortType = "ID_DESC"
+	SurveyAnswerSortTypeUserIDAsc     SurveyAnswerSortType = "USER_ID_ASC"
+	SurveyAnswerSortTypeUserIDDesc    SurveyAnswerSortType = "USER_ID_DESC"
+	SurveyAnswerSortTypeCompletedAsc  SurveyAnswerSortType = "COMPLETED_ASC"
+	SurveyAnswerSortTypeCompletedDesc SurveyAnswerSortType = "COMPLETED_DESC"
+	SurveyAnswerSortTypeContentAsc    SurveyAnswerSortType = "CONTENT_ASC"
+	SurveyAnswerSortTypeContentDesc   SurveyAnswerSortType = "CONTENT_DESC"
+	SurveyAnswerSortTypeSurveyIDAsc   SurveyAnswerSortType = "SURVEY_ID_ASC"
+	SurveyAnswerSortTypeSurveyIDDesc  SurveyAnswerSortType = "SURVEY_ID_DESC"
+	SurveyAnswerSortTypeUpdatedAtAsc  SurveyAnswerSortType = "UPDATED_AT_ASC"
+	SurveyAnswerSortTypeUpdatedAtDesc SurveyAnswerSortType = "UPDATED_AT_DESC"
+	SurveyAnswerSortTypeCreatedAtAsc  SurveyAnswerSortType = "CREATED_AT_ASC"
+	SurveyAnswerSortTypeCreatedAtDesc SurveyAnswerSortType = "CREATED_AT_DESC"
+	SurveyAnswerSortTypeUpdatedByAsc  SurveyAnswerSortType = "UPDATED_BY_ASC"
+	SurveyAnswerSortTypeUpdatedByDesc SurveyAnswerSortType = "UPDATED_BY_DESC"
+	SurveyAnswerSortTypeCreatedByAsc  SurveyAnswerSortType = "CREATED_BY_ASC"
+	SurveyAnswerSortTypeCreatedByDesc SurveyAnswerSortType = "CREATED_BY_DESC"
 )
 
-var AllAnswerSortType = []AnswerSortType{
-	AnswerSortTypeIDAsc,
-	AnswerSortTypeIDDesc,
-	AnswerSortTypeUserIDAsc,
-	AnswerSortTypeUserIDDesc,
-	AnswerSortTypeCompletedAsc,
-	AnswerSortTypeCompletedDesc,
-	AnswerSortTypeContentAsc,
-	AnswerSortTypeContentDesc,
-	AnswerSortTypeSurveyIDAsc,
-	AnswerSortTypeSurveyIDDesc,
-	AnswerSortTypeUpdatedAtAsc,
-	AnswerSortTypeUpdatedAtDesc,
-	AnswerSortTypeCreatedAtAsc,
-	AnswerSortTypeCreatedAtDesc,
-	AnswerSortTypeUpdatedByAsc,
-	AnswerSortTypeUpdatedByDesc,
-	AnswerSortTypeCreatedByAsc,
-	AnswerSortTypeCreatedByDesc,
+var AllSurveyAnswerSortType = []SurveyAnswerSortType{
+	SurveyAnswerSortTypeIDAsc,
+	SurveyAnswerSortTypeIDDesc,
+	SurveyAnswerSortTypeUserIDAsc,
+	SurveyAnswerSortTypeUserIDDesc,
+	SurveyAnswerSortTypeCompletedAsc,
+	SurveyAnswerSortTypeCompletedDesc,
+	SurveyAnswerSortTypeContentAsc,
+	SurveyAnswerSortTypeContentDesc,
+	SurveyAnswerSortTypeSurveyIDAsc,
+	SurveyAnswerSortTypeSurveyIDDesc,
+	SurveyAnswerSortTypeUpdatedAtAsc,
+	SurveyAnswerSortTypeUpdatedAtDesc,
+	SurveyAnswerSortTypeCreatedAtAsc,
+	SurveyAnswerSortTypeCreatedAtDesc,
+	SurveyAnswerSortTypeUpdatedByAsc,
+	SurveyAnswerSortTypeUpdatedByDesc,
+	SurveyAnswerSortTypeCreatedByAsc,
+	SurveyAnswerSortTypeCreatedByDesc,
 }
 
-func (e AnswerSortType) IsValid() bool {
+func (e SurveyAnswerSortType) IsValid() bool {
 	switch e {
-	case AnswerSortTypeIDAsc, AnswerSortTypeIDDesc, AnswerSortTypeUserIDAsc, AnswerSortTypeUserIDDesc, AnswerSortTypeCompletedAsc, AnswerSortTypeCompletedDesc, AnswerSortTypeContentAsc, AnswerSortTypeContentDesc, AnswerSortTypeSurveyIDAsc, AnswerSortTypeSurveyIDDesc, AnswerSortTypeUpdatedAtAsc, AnswerSortTypeUpdatedAtDesc, AnswerSortTypeCreatedAtAsc, AnswerSortTypeCreatedAtDesc, AnswerSortTypeUpdatedByAsc, AnswerSortTypeUpdatedByDesc, AnswerSortTypeCreatedByAsc, AnswerSortTypeCreatedByDesc:
+	case SurveyAnswerSortTypeIDAsc, SurveyAnswerSortTypeIDDesc, SurveyAnswerSortTypeUserIDAsc, SurveyAnswerSortTypeUserIDDesc, SurveyAnswerSortTypeCompletedAsc, SurveyAnswerSortTypeCompletedDesc, SurveyAnswerSortTypeContentAsc, SurveyAnswerSortTypeContentDesc, SurveyAnswerSortTypeSurveyIDAsc, SurveyAnswerSortTypeSurveyIDDesc, SurveyAnswerSortTypeUpdatedAtAsc, SurveyAnswerSortTypeUpdatedAtDesc, SurveyAnswerSortTypeCreatedAtAsc, SurveyAnswerSortTypeCreatedAtDesc, SurveyAnswerSortTypeUpdatedByAsc, SurveyAnswerSortTypeUpdatedByDesc, SurveyAnswerSortTypeCreatedByAsc, SurveyAnswerSortTypeCreatedByDesc:
 		return true
 	}
 	return false
 }
 
-func (e AnswerSortType) String() string {
+func (e SurveyAnswerSortType) String() string {
 	return string(e)
 }
 
-func (e *AnswerSortType) UnmarshalGQL(v interface{}) error {
+func (e *SurveyAnswerSortType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = AnswerSortType(str)
+	*e = SurveyAnswerSortType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid AnswerSortType", str)
+		return fmt.Errorf("%s is not a valid SurveyAnswerSortType", str)
 	}
 	return nil
 }
 
-func (e AnswerSortType) MarshalGQL(w io.Writer) {
+func (e SurveyAnswerSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -19,6 +20,12 @@ type DB struct {
 
 // NewDB ...
 func NewDB(db *gorm.DB) *DB {
+	prefix := os.Getenv("TABLE_NAME_PREFIX")
+	if prefix != "" {
+		gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+			return prefix + "_" + defaultTableName
+		}
+	}
 	v := DB{db}
 	return &v
 }
@@ -68,7 +75,7 @@ func (db *DB) Query() *gorm.DB {
 func (db *DB) AutoMigrate() {
 	db.db.AutoMigrate(
 		Survey{},
-		Answer{},
+		SurveyAnswer{},
 	)
 }
 
