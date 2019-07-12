@@ -19,13 +19,6 @@ type SurveyAnswerFilterType struct {
 	IDGte         *string                   `json:"id_gte"`
 	IDLte         *string                   `json:"id_lte"`
 	IDIn          []string                  `json:"id_in"`
-	UserID        *string                   `json:"userId"`
-	UserIDNe      *string                   `json:"userId_ne"`
-	UserIDGt      *string                   `json:"userId_gt"`
-	UserIDLt      *string                   `json:"userId_lt"`
-	UserIDGte     *string                   `json:"userId_gte"`
-	UserIDLte     *string                   `json:"userId_lte"`
-	UserIDIn      []string                  `json:"userId_in"`
 	Completed     *bool                     `json:"completed"`
 	CompletedNe   *bool                     `json:"completed_ne"`
 	CompletedGt   *bool                     `json:"completed_gt"`
@@ -147,8 +140,6 @@ type SurveyAnswerSortType string
 const (
 	SurveyAnswerSortTypeIDAsc         SurveyAnswerSortType = "ID_ASC"
 	SurveyAnswerSortTypeIDDesc        SurveyAnswerSortType = "ID_DESC"
-	SurveyAnswerSortTypeUserIDAsc     SurveyAnswerSortType = "USER_ID_ASC"
-	SurveyAnswerSortTypeUserIDDesc    SurveyAnswerSortType = "USER_ID_DESC"
 	SurveyAnswerSortTypeCompletedAsc  SurveyAnswerSortType = "COMPLETED_ASC"
 	SurveyAnswerSortTypeCompletedDesc SurveyAnswerSortType = "COMPLETED_DESC"
 	SurveyAnswerSortTypeContentAsc    SurveyAnswerSortType = "CONTENT_ASC"
@@ -168,8 +159,6 @@ const (
 var AllSurveyAnswerSortType = []SurveyAnswerSortType{
 	SurveyAnswerSortTypeIDAsc,
 	SurveyAnswerSortTypeIDDesc,
-	SurveyAnswerSortTypeUserIDAsc,
-	SurveyAnswerSortTypeUserIDDesc,
 	SurveyAnswerSortTypeCompletedAsc,
 	SurveyAnswerSortTypeCompletedDesc,
 	SurveyAnswerSortTypeContentAsc,
@@ -188,7 +177,7 @@ var AllSurveyAnswerSortType = []SurveyAnswerSortType{
 
 func (e SurveyAnswerSortType) IsValid() bool {
 	switch e {
-	case SurveyAnswerSortTypeIDAsc, SurveyAnswerSortTypeIDDesc, SurveyAnswerSortTypeUserIDAsc, SurveyAnswerSortTypeUserIDDesc, SurveyAnswerSortTypeCompletedAsc, SurveyAnswerSortTypeCompletedDesc, SurveyAnswerSortTypeContentAsc, SurveyAnswerSortTypeContentDesc, SurveyAnswerSortTypeSurveyIDAsc, SurveyAnswerSortTypeSurveyIDDesc, SurveyAnswerSortTypeUpdatedAtAsc, SurveyAnswerSortTypeUpdatedAtDesc, SurveyAnswerSortTypeCreatedAtAsc, SurveyAnswerSortTypeCreatedAtDesc, SurveyAnswerSortTypeUpdatedByAsc, SurveyAnswerSortTypeUpdatedByDesc, SurveyAnswerSortTypeCreatedByAsc, SurveyAnswerSortTypeCreatedByDesc:
+	case SurveyAnswerSortTypeIDAsc, SurveyAnswerSortTypeIDDesc, SurveyAnswerSortTypeCompletedAsc, SurveyAnswerSortTypeCompletedDesc, SurveyAnswerSortTypeContentAsc, SurveyAnswerSortTypeContentDesc, SurveyAnswerSortTypeSurveyIDAsc, SurveyAnswerSortTypeSurveyIDDesc, SurveyAnswerSortTypeUpdatedAtAsc, SurveyAnswerSortTypeUpdatedAtDesc, SurveyAnswerSortTypeCreatedAtAsc, SurveyAnswerSortTypeCreatedAtDesc, SurveyAnswerSortTypeUpdatedByAsc, SurveyAnswerSortTypeUpdatedByDesc, SurveyAnswerSortTypeCreatedByAsc, SurveyAnswerSortTypeCreatedByDesc:
 		return true
 	}
 	return false

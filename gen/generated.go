@@ -84,7 +84,6 @@ type ComplexityRoot struct {
 		SurveyID  func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		UpdatedBy func(childComplexity int) int
-		UserID    func(childComplexity int) int
 	}
 
 	SurveyAnswerResultType struct {
@@ -381,13 +380,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SurveyAnswer.UpdatedBy(childComplexity), true
 
-	case "SurveyAnswer.userId":
-		if e.complexity.SurveyAnswer.UserID == nil {
-			break
-		}
-
-		return e.complexity.SurveyAnswer.UserID(childComplexity), true
-
 	case "SurveyAnswerResultType.count":
 		if e.complexity.SurveyAnswerResultType.Count == nil {
 			break
@@ -516,7 +508,6 @@ type Survey {
 
 type SurveyAnswer {
   id: ID!
-  userId: ID!
   completed: Boolean
   content: String
   survey: Survey
@@ -625,14 +616,12 @@ type SurveyResultType {
 
 input SurveyAnswerCreateInput {
   id: ID
-  userId: ID!
   completed: Boolean
   content: String
   surveyId: ID
 }
 
 input SurveyAnswerUpdateInput {
-  userId: ID
   completed: Boolean
   content: String
   surveyId: ID
@@ -641,8 +630,6 @@ input SurveyAnswerUpdateInput {
 enum SurveyAnswerSortType {
   ID_ASC
   ID_DESC
-  USER_ID_ASC
-  USER_ID_DESC
   COMPLETED_ASC
   COMPLETED_DESC
   CONTENT_ASC
@@ -669,13 +656,6 @@ input SurveyAnswerFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
-  userId: ID
-  userId_ne: ID
-  userId_gt: ID
-  userId_lt: ID
-  userId_gte: ID
-  userId_lte: ID
-  userId_in: [ID!]
   completed: Boolean
   completed_ne: Boolean
   completed_gt: Boolean
@@ -1848,43 +1828,6 @@ func (ec *executionContext) _SurveyAnswer_id(ctx context.Context, field graphql.
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _SurveyAnswer_userId(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "SurveyAnswer",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3536,48 +3479,6 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
-		case "userId":
-			var err error
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId_ne":
-			var err error
-			it.UserIDNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId_gt":
-			var err error
-			it.UserIDGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId_lt":
-			var err error
-			it.UserIDLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId_gte":
-			var err error
-			it.UserIDGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId_lte":
-			var err error
-			it.UserIDLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId_in":
-			var err error
-			it.UserIDIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "completed":
 			var err error
 			it.Completed, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -4469,11 +4370,6 @@ func (ec *executionContext) _SurveyAnswer(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("SurveyAnswer")
 		case "id":
 			out.Values[i] = ec._SurveyAnswer_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "userId":
-			out.Values[i] = ec._SurveyAnswer_userId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
