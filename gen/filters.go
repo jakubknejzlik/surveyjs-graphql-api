@@ -8,6 +8,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+func (f *SurveyFilterType) IsEmpty(ctx context.Context, dialect gorm.Dialect) bool {
+	wheres := []string{}
+	values := []interface{}{}
+	joins := []string{}
+	err := f.ApplyWithAlias(ctx, dialect, "companies", &wheres, &values, &joins)
+	if err != nil {
+		panic(err)
+	}
+	return len(wheres) == 0
+}
 func (f *SurveyFilterType) Apply(ctx context.Context, dialect gorm.Dialect, wheres *[]string, values *[]interface{}, joins *[]string) error {
 	return f.ApplyWithAlias(ctx, dialect, "surveys", wheres, values, joins)
 }
@@ -332,6 +342,16 @@ func (f *SurveyFilterType) OrWith(f2 ...*SurveyFilterType) *SurveyFilterType {
 	}
 }
 
+func (f *SurveyAnswerFilterType) IsEmpty(ctx context.Context, dialect gorm.Dialect) bool {
+	wheres := []string{}
+	values := []interface{}{}
+	joins := []string{}
+	err := f.ApplyWithAlias(ctx, dialect, "companies", &wheres, &values, &joins)
+	if err != nil {
+		panic(err)
+	}
+	return len(wheres) == 0
+}
 func (f *SurveyAnswerFilterType) Apply(ctx context.Context, dialect gorm.Dialect, wheres *[]string, values *[]interface{}, joins *[]string) error {
 	return f.ApplyWithAlias(ctx, dialect, "survey_answers", wheres, values, joins)
 }

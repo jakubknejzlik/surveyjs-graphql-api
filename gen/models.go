@@ -10,6 +10,14 @@ import (
 	"github.com/novacloudcz/graphql-orm/resolvers"
 )
 
+type NotFoundError struct {
+	Entity string
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("%s not found", e.Entity)
+}
+
 type SurveyResultType struct {
 	resolvers.EntityResultType
 }

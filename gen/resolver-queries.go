@@ -2,7 +2,6 @@ package gen
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/graph-gophers/dataloader"
@@ -49,7 +48,7 @@ func QuerySurveyHandler(ctx context.Context, r *GeneratedResolver, opts QuerySur
 		return nil, err
 	}
 	if len(items) == 0 {
-		return nil, fmt.Errorf("Survey not found")
+		return nil, &NotFoundError{Entity: "Survey"}
 	}
 	return items[0], err
 }
@@ -173,7 +172,7 @@ func QuerySurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, opts Qu
 		return nil, err
 	}
 	if len(items) == 0 {
-		return nil, fmt.Errorf("SurveyAnswer not found")
+		return nil, &NotFoundError{Entity: "SurveyAnswer"}
 	}
 	return items[0], err
 }
@@ -244,6 +243,7 @@ func SurveyAnswerSurveyHandler(ctx context.Context, r *GeneratedSurveyAnswerReso
 	if obj.SurveyID != nil {
 		item, _err := loaders["Survey"].Load(ctx, dataloader.StringKey(*obj.SurveyID))()
 		res, _ = item.(*Survey)
+
 		err = _err
 	}
 
