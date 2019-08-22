@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -48,12 +49,14 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateSurvey       func(childComplexity int, input map[string]interface{}) int
-		CreateSurveyAnswer func(childComplexity int, input map[string]interface{}) int
-		DeleteSurvey       func(childComplexity int, id string) int
-		DeleteSurveyAnswer func(childComplexity int, id string) int
-		UpdateSurvey       func(childComplexity int, id string, input map[string]interface{}) int
-		UpdateSurveyAnswer func(childComplexity int, id string, input map[string]interface{}) int
+		CreateSurvey           func(childComplexity int, input map[string]interface{}) int
+		CreateSurveyAnswer     func(childComplexity int, input map[string]interface{}) int
+		DeleteAllSurveyAnswers func(childComplexity int) int
+		DeleteAllSurveys       func(childComplexity int) int
+		DeleteSurvey           func(childComplexity int, id string) int
+		DeleteSurveyAnswer     func(childComplexity int, id string) int
+		UpdateSurvey           func(childComplexity int, id string, input map[string]interface{}) int
+		UpdateSurveyAnswer     func(childComplexity int, id string, input map[string]interface{}) int
 	}
 
 	Query struct {
@@ -61,17 +64,20 @@ type ComplexityRoot struct {
 		SurveyAnswer  func(childComplexity int, id *string, q *string, filter *SurveyAnswerFilterType) int
 		SurveyAnswers func(childComplexity int, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) int
 		Surveys       func(childComplexity int, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) int
+		_entities     func(childComplexity int, representations []interface{}) int
+		_service      func(childComplexity int) int
 	}
 
 	Survey struct {
-		Answers   func(childComplexity int) int
-		Content   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		CreatedBy func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		UpdatedBy func(childComplexity int) int
+		Answers    func(childComplexity int) int
+		AnswersIds func(childComplexity int) int
+		Content    func(childComplexity int) int
+		CreatedAt  func(childComplexity int) int
+		CreatedBy  func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Name       func(childComplexity int) int
+		UpdatedAt  func(childComplexity int) int
+		UpdatedBy  func(childComplexity int) int
 	}
 
 	SurveyAnswer struct {
@@ -95,17 +101,25 @@ type ComplexityRoot struct {
 		Count func(childComplexity int) int
 		Items func(childComplexity int) int
 	}
+
+	_Service struct {
+		Sdl func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
 	CreateSurvey(ctx context.Context, input map[string]interface{}) (*Survey, error)
 	UpdateSurvey(ctx context.Context, id string, input map[string]interface{}) (*Survey, error)
 	DeleteSurvey(ctx context.Context, id string) (*Survey, error)
+	DeleteAllSurveys(ctx context.Context) (bool, error)
 	CreateSurveyAnswer(ctx context.Context, input map[string]interface{}) (*SurveyAnswer, error)
 	UpdateSurveyAnswer(ctx context.Context, id string, input map[string]interface{}) (*SurveyAnswer, error)
 	DeleteSurveyAnswer(ctx context.Context, id string) (*SurveyAnswer, error)
+	DeleteAllSurveyAnswers(ctx context.Context) (bool, error)
 }
 type QueryResolver interface {
+	_service(ctx context.Context) (*_Service, error)
+	_entities(ctx context.Context, representations []interface{}) ([]_Entity, error)
 	Survey(ctx context.Context, id *string, q *string, filter *SurveyFilterType) (*Survey, error)
 	Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error)
 	SurveyAnswer(ctx context.Context, id *string, q *string, filter *SurveyAnswerFilterType) (*SurveyAnswer, error)
@@ -113,6 +127,8 @@ type QueryResolver interface {
 }
 type SurveyResolver interface {
 	Answers(ctx context.Context, obj *Survey) ([]*SurveyAnswer, error)
+
+	AnswersIds(ctx context.Context, obj *Survey) ([]string, error)
 }
 type SurveyAnswerResolver interface {
 	Survey(ctx context.Context, obj *SurveyAnswer) (*Survey, error)
@@ -164,6 +180,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateSurveyAnswer(childComplexity, args["input"].(map[string]interface{})), true
+
+	case "Mutation.deleteAllSurveyAnswers":
+		if e.complexity.Mutation.DeleteAllSurveyAnswers == nil {
+			break
+		}
+
+		return e.complexity.Mutation.DeleteAllSurveyAnswers(childComplexity), true
+
+	case "Mutation.deleteAllSurveys":
+		if e.complexity.Mutation.DeleteAllSurveys == nil {
+			break
+		}
+
+		return e.complexity.Mutation.DeleteAllSurveys(childComplexity), true
 
 	case "Mutation.deleteSurvey":
 		if e.complexity.Mutation.DeleteSurvey == nil {
@@ -261,12 +291,38 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Surveys(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveySortType), args["filter"].(*SurveyFilterType)), true
 
+	case "Query._entities":
+		if e.complexity.Query._entities == nil {
+			break
+		}
+
+		args, err := ec.field_Query__entities_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query._entities(childComplexity, args["representations"].([]interface{})), true
+
+	case "Query._service":
+		if e.complexity.Query._service == nil {
+			break
+		}
+
+		return e.complexity.Query._service(childComplexity), true
+
 	case "Survey.answers":
 		if e.complexity.Survey.Answers == nil {
 			break
 		}
 
 		return e.complexity.Survey.Answers(childComplexity), true
+
+	case "Survey.answersIds":
+		if e.complexity.Survey.AnswersIds == nil {
+			break
+		}
+
+		return e.complexity.Survey.AnswersIds(childComplexity), true
 
 	case "Survey.content":
 		if e.complexity.Survey.Content == nil {
@@ -408,6 +464,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SurveyResultType.Items(childComplexity), true
 
+	case "_Service.sdl":
+		if e.complexity._Service.Sdl == nil {
+			break
+		}
+
+		return e.complexity._Service.Sdl(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -474,12 +537,16 @@ var parsedSchema = gqlparser.MustLoadSchema(
 
 scalar Time
 
+scalar _Any
+
 schema {
   query: Query
   mutation: Mutation
 }
 
 type Query {
+  _service: _Service!
+  _entities(representations: [_Any!]!): [_Entity]!
   survey(id: ID, q: String, filter: SurveyFilterType): Survey
   surveys(offset: Int, limit: Int = 30, q: String, sort: [SurveySortType!], filter: SurveyFilterType): SurveyResultType
   surveyAnswer(id: ID, q: String, filter: SurveyAnswerFilterType): SurveyAnswer
@@ -490,9 +557,11 @@ type Mutation {
   createSurvey(input: SurveyCreateInput!): Survey!
   updateSurvey(id: ID!, input: SurveyUpdateInput!): Survey!
   deleteSurvey(id: ID!): Survey!
+  deleteAllSurveys: Boolean!
   createSurveyAnswer(input: SurveyAnswerCreateInput!): SurveyAnswer!
   updateSurveyAnswer(id: ID!, input: SurveyAnswerUpdateInput!): SurveyAnswer!
   deleteSurveyAnswer(id: ID!): SurveyAnswer!
+  deleteAllSurveyAnswers: Boolean!
 }
 
 type Survey {
@@ -504,6 +573,7 @@ type Survey {
   createdAt: Time!
   updatedBy: ID
   createdBy: ID
+  answersIds: [ID!]!
 }
 
 type SurveyAnswer {
@@ -517,6 +587,8 @@ type SurveyAnswer {
   updatedBy: ID
   createdBy: ID
 }
+
+union _Entity = Survey | SurveyAnswer
 
 input SurveyCreateInput {
   id: ID
@@ -546,6 +618,8 @@ enum SurveySortType {
   UPDATED_BY_DESC
   CREATED_BY_ASC
   CREATED_BY_DESC
+  ANSWERS_IDS_ASC
+  ANSWERS_IDS_DESC
 }
 
 input SurveyFilterType {
@@ -715,6 +789,10 @@ type SurveyAnswerResultType {
   items: [SurveyAnswer!]!
   count: Int!
 }
+
+type _Service {
+  sdl: String
+}
 `},
 )
 
@@ -833,6 +911,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query__entities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []interface{}
+	if tmp, ok := rawArgs["representations"]; ok {
+		arg0, err = ec.unmarshalN_Any2ᚕinterface(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["representations"] = arg0
 	return args, nil
 }
 
@@ -1156,6 +1248,43 @@ func (ec *executionContext) _Mutation_deleteSurvey(ctx context.Context, field gr
 	return ec.marshalNSurvey2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurvey(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_deleteAllSurveys(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteAllSurveys(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createSurveyAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -1286,6 +1415,124 @@ func (ec *executionContext) _Mutation_deleteSurveyAnswer(ctx context.Context, fi
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteAllSurveyAnswers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteAllSurveyAnswers(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query__service(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query()._service(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*_Service)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalN_Service2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Service(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query__entities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query__entities_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query()._entities(rctx, args["representations"].([]interface{}))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]_Entity)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalN_Entity2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Entity(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_survey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1808,6 +2055,43 @@ func (ec *executionContext) _Survey_createdBy(ctx context.Context, field graphql
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Survey_answersIds(ctx context.Context, field graphql.CollectedField, obj *Survey) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Survey",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Survey().AnswersIds(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNID2ᚕstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _SurveyAnswer_id(ctx context.Context, field graphql.CollectedField, obj *SurveyAnswer) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -2266,6 +2550,40 @@ func (ec *executionContext) _SurveyResultType_count(ctx context.Context, field g
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) __Service_sdl(ctx context.Context, field graphql.CollectedField, obj *_Service) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "_Service",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sdl, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -4167,6 +4485,19 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) __Entity(ctx context.Context, sel ast.SelectionSet, obj *_Entity) graphql.Marshaler {
+	switch obj := (*obj).(type) {
+	case nil:
+		return graphql.Null
+	case *Survey:
+		return ec._Survey(ctx, sel, obj)
+	case *SurveyAnswer:
+		return ec._SurveyAnswer(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -4201,6 +4532,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deleteAllSurveys":
+			out.Values[i] = ec._Mutation_deleteAllSurveys(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createSurveyAnswer":
 			out.Values[i] = ec._Mutation_createSurveyAnswer(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -4213,6 +4549,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteSurveyAnswer":
 			out.Values[i] = ec._Mutation_deleteSurveyAnswer(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteAllSurveyAnswers":
+			out.Values[i] = ec._Mutation_deleteAllSurveyAnswers(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4242,6 +4583,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "_service":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query__service(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "_entities":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query__entities(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "survey":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -4301,7 +4670,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var surveyImplementors = []string{"Survey"}
+var surveyImplementors = []string{"Survey", "_Entity"}
 
 func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, obj *Survey) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, surveyImplementors)
@@ -4346,6 +4715,20 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Survey_updatedBy(ctx, field, obj)
 		case "createdBy":
 			out.Values[i] = ec._Survey_createdBy(ctx, field, obj)
+		case "answersIds":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Survey_answersIds(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4357,7 +4740,7 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var surveyAnswerImplementors = []string{"SurveyAnswer"}
+var surveyAnswerImplementors = []string{"SurveyAnswer", "_Entity"}
 
 func (ec *executionContext) _SurveyAnswer(ctx context.Context, sel ast.SelectionSet, obj *SurveyAnswer) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, surveyAnswerImplementors)
@@ -4501,6 +4884,30 @@ func (ec *executionContext) _SurveyResultType(ctx context.Context, sel ast.Selec
 				}
 				return res
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var _ServiceImplementors = []string{"_Service"}
+
+func (ec *executionContext) __Service(ctx context.Context, sel ast.SelectionSet, obj *_Service) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, _ServiceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("_Service")
+		case "sdl":
+			out.Values[i] = ec.__Service_sdl(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4785,6 +5192,35 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNID2ᚕstring(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstring(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	return graphql.UnmarshalInt(v)
 }
@@ -5015,6 +5451,109 @@ func (ec *executionContext) marshalNTime2ᚖtimeᚐTime(ctx context.Context, sel
 		return graphql.Null
 	}
 	return ec.marshalNTime2timeᚐTime(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalN_Any2interface(ctx context.Context, v interface{}) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	return Unmarshal_Any(v)
+}
+
+func (ec *executionContext) marshalN_Any2interface(ctx context.Context, sel ast.SelectionSet, v interface{}) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := Marshal_Any(v)
+	if res == graphql.Null {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalN_Any2ᚕinterface(ctx context.Context, v interface{}) ([]interface{}, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]interface{}, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalN_Any2interface(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalN_Any2ᚕinterface(ctx context.Context, sel ast.SelectionSet, v []interface{}) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalN_Any2interface(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalN_Entity2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Entity(ctx context.Context, sel ast.SelectionSet, v []_Entity) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalO_Entity2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Entity(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalN_Service2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Service(ctx context.Context, sel ast.SelectionSet, v _Service) graphql.Marshaler {
+	return ec.__Service(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalN_Service2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Service(ctx context.Context, sel ast.SelectionSet, v *_Service) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec.__Service(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -5712,6 +6251,10 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 		return graphql.Null
 	}
 	return ec.marshalOTime2timeᚐTime(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalO_Entity2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐ_Entity(ctx context.Context, sel ast.SelectionSet, v _Entity) graphql.Marshaler {
+	return ec.__Entity(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

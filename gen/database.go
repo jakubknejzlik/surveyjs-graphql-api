@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
@@ -16,6 +17,15 @@ import (
 // DB ...
 type DB struct {
 	db *gorm.DB
+}
+
+// NewDBFromEnvVars Create database client using DATABASE_URL environment variable
+func NewDBFromEnvVars() *DB {
+	urlString := os.Getenv("DATABASE_URL")
+	if urlString == "" {
+		panic(fmt.Errorf("missing DATABASE_URL environment variable"))
+	}
+	return NewDBWithString(urlString)
 }
 
 // NewDB ...
@@ -43,7 +53,8 @@ func NewDBWithString(urlString string) *DB {
 	if err != nil {
 		panic(err)
 	}
-	db.DB().SetMaxIdleConns(0)
+	db.DB().SetMaxIdleConns(5)
+	db.DB().SetConnMaxLifetime(time.Second * 60)
 	db.DB().SetMaxOpenConns(10)
 	db.LogMode(true)
 	return NewDB(db)

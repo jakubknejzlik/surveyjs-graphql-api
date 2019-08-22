@@ -26,6 +26,8 @@ type Survey struct {
 	Answers []*SurveyAnswer `json:"answers" gorm:"foreignkey:SurveyID"`
 }
 
+func (m *Survey) Is_Entity() {}
+
 type SurveyChanges struct {
 	ID        string
 	Name      *string
@@ -34,6 +36,8 @@ type SurveyChanges struct {
 	CreatedAt time.Time
 	UpdatedBy *string
 	CreatedBy *string
+
+	AnswersIDs []*string
 }
 
 type SurveyAnswerResultType struct {
@@ -52,6 +56,8 @@ type SurveyAnswer struct {
 
 	Survey *Survey `json:"survey"`
 }
+
+func (m *SurveyAnswer) Is_Entity() {}
 
 type SurveyAnswerChanges struct {
 	ID        string

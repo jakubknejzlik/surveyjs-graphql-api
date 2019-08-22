@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type _Entity interface {
+	Is_Entity()
+}
+
 type SurveyAnswerFilterType struct {
 	And           []*SurveyAnswerFilterType `json:"AND"`
 	Or            []*SurveyAnswerFilterType `json:"OR"`
@@ -135,6 +139,10 @@ type SurveyFilterType struct {
 	Answers       *SurveyAnswerFilterType `json:"answers"`
 }
 
+type _Service struct {
+	Sdl *string `json:"sdl"`
+}
+
 type SurveyAnswerSortType string
 
 const (
@@ -207,20 +215,22 @@ func (e SurveyAnswerSortType) MarshalGQL(w io.Writer) {
 type SurveySortType string
 
 const (
-	SurveySortTypeIDAsc         SurveySortType = "ID_ASC"
-	SurveySortTypeIDDesc        SurveySortType = "ID_DESC"
-	SurveySortTypeNameAsc       SurveySortType = "NAME_ASC"
-	SurveySortTypeNameDesc      SurveySortType = "NAME_DESC"
-	SurveySortTypeContentAsc    SurveySortType = "CONTENT_ASC"
-	SurveySortTypeContentDesc   SurveySortType = "CONTENT_DESC"
-	SurveySortTypeUpdatedAtAsc  SurveySortType = "UPDATED_AT_ASC"
-	SurveySortTypeUpdatedAtDesc SurveySortType = "UPDATED_AT_DESC"
-	SurveySortTypeCreatedAtAsc  SurveySortType = "CREATED_AT_ASC"
-	SurveySortTypeCreatedAtDesc SurveySortType = "CREATED_AT_DESC"
-	SurveySortTypeUpdatedByAsc  SurveySortType = "UPDATED_BY_ASC"
-	SurveySortTypeUpdatedByDesc SurveySortType = "UPDATED_BY_DESC"
-	SurveySortTypeCreatedByAsc  SurveySortType = "CREATED_BY_ASC"
-	SurveySortTypeCreatedByDesc SurveySortType = "CREATED_BY_DESC"
+	SurveySortTypeIDAsc          SurveySortType = "ID_ASC"
+	SurveySortTypeIDDesc         SurveySortType = "ID_DESC"
+	SurveySortTypeNameAsc        SurveySortType = "NAME_ASC"
+	SurveySortTypeNameDesc       SurveySortType = "NAME_DESC"
+	SurveySortTypeContentAsc     SurveySortType = "CONTENT_ASC"
+	SurveySortTypeContentDesc    SurveySortType = "CONTENT_DESC"
+	SurveySortTypeUpdatedAtAsc   SurveySortType = "UPDATED_AT_ASC"
+	SurveySortTypeUpdatedAtDesc  SurveySortType = "UPDATED_AT_DESC"
+	SurveySortTypeCreatedAtAsc   SurveySortType = "CREATED_AT_ASC"
+	SurveySortTypeCreatedAtDesc  SurveySortType = "CREATED_AT_DESC"
+	SurveySortTypeUpdatedByAsc   SurveySortType = "UPDATED_BY_ASC"
+	SurveySortTypeUpdatedByDesc  SurveySortType = "UPDATED_BY_DESC"
+	SurveySortTypeCreatedByAsc   SurveySortType = "CREATED_BY_ASC"
+	SurveySortTypeCreatedByDesc  SurveySortType = "CREATED_BY_DESC"
+	SurveySortTypeAnswersIDSAsc  SurveySortType = "ANSWERS_IDS_ASC"
+	SurveySortTypeAnswersIDSDesc SurveySortType = "ANSWERS_IDS_DESC"
 )
 
 var AllSurveySortType = []SurveySortType{
@@ -238,11 +248,13 @@ var AllSurveySortType = []SurveySortType{
 	SurveySortTypeUpdatedByDesc,
 	SurveySortTypeCreatedByAsc,
 	SurveySortTypeCreatedByDesc,
+	SurveySortTypeAnswersIDSAsc,
+	SurveySortTypeAnswersIDSDesc,
 }
 
 func (e SurveySortType) IsValid() bool {
 	switch e {
-	case SurveySortTypeIDAsc, SurveySortTypeIDDesc, SurveySortTypeNameAsc, SurveySortTypeNameDesc, SurveySortTypeContentAsc, SurveySortTypeContentDesc, SurveySortTypeUpdatedAtAsc, SurveySortTypeUpdatedAtDesc, SurveySortTypeCreatedAtAsc, SurveySortTypeCreatedAtDesc, SurveySortTypeUpdatedByAsc, SurveySortTypeUpdatedByDesc, SurveySortTypeCreatedByAsc, SurveySortTypeCreatedByDesc:
+	case SurveySortTypeIDAsc, SurveySortTypeIDDesc, SurveySortTypeNameAsc, SurveySortTypeNameDesc, SurveySortTypeContentAsc, SurveySortTypeContentDesc, SurveySortTypeUpdatedAtAsc, SurveySortTypeUpdatedAtDesc, SurveySortTypeCreatedAtAsc, SurveySortTypeCreatedAtDesc, SurveySortTypeUpdatedByAsc, SurveySortTypeUpdatedByDesc, SurveySortTypeCreatedByAsc, SurveySortTypeCreatedByDesc, SurveySortTypeAnswersIDSAsc, SurveySortTypeAnswersIDSDesc:
 		return true
 	}
 	return false

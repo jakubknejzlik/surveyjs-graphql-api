@@ -15,6 +15,11 @@ resolver:
 
 models:
   
+  Survey:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.Survey
+    fields:
+      answers:
+        resolver: true
   SurveyResultType:
     model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyResultType
     fields:
@@ -22,16 +27,16 @@ models:
         resolver: true
       items:
         resolver: true
-  Survey:
-    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.Survey
-    fields:
-      answers:
-        resolver: true
   SurveyCreateInput:
     model: "map[string]interface{}"
   SurveyUpdateInput:
     model: "map[string]interface{}"
   
+  SurveyAnswer:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyAnswer
+    fields:
+      survey:
+        resolver: true
   SurveyAnswerResultType:
     model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyAnswerResultType
     fields:
@@ -39,13 +44,12 @@ models:
         resolver: true
       items:
         resolver: true
-  SurveyAnswer:
-    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen.SurveyAnswer
-    fields:
-      survey:
-        resolver: true
   SurveyAnswerCreateInput:
     model: "map[string]interface{}"
   SurveyAnswerUpdateInput:
     model: "map[string]interface{}"
   
+  
+  
+  _Any:
+    model: github.com/jakubknejzlik/surveyjs-graphql-api/gen._Any

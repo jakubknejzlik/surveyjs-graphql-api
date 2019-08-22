@@ -1,17 +1,15 @@
-# This schema is generated, please don't update it manually
+package gen
 
-scalar Time
+type key int
 
-scalar _Any
-
-schema {
-  query: Query
-  mutation: Mutation
-}
+const (
+	KeyPrincipalID      key    = iota
+	KeyLoaders          key    = iota
+	KeyExecutableSchema key    = iota
+	KeyJWTClaims        key    = iota
+	SchemaSDL           string = `scalar Time
 
 type Query {
-  _service: _Service!
-  _entities(representations: [_Any!]!): [_Entity]!
   survey(id: ID, q: String, filter: SurveyFilterType): Survey
   surveys(offset: Int, limit: Int = 30, q: String, sort: [SurveySortType!], filter: SurveyFilterType): SurveyResultType
   surveyAnswer(id: ID, q: String, filter: SurveyAnswerFilterType): SurveyAnswer
@@ -29,7 +27,7 @@ type Mutation {
   deleteAllSurveyAnswers: Boolean!
 }
 
-type Survey {
+type Survey @key(fields: "id") {
   id: ID!
   name: String
   content: String
@@ -41,7 +39,7 @@ type Survey {
   answersIds: [ID!]!
 }
 
-type SurveyAnswer {
+type SurveyAnswer @key(fields: "id") {
   id: ID!
   completed: Boolean
   content: String
@@ -253,8 +251,5 @@ input SurveyAnswerFilterType {
 type SurveyAnswerResultType {
   items: [SurveyAnswer!]!
   count: Int!
-}
-
-type _Service {
-  sdl: String
-}
+}`
+)
