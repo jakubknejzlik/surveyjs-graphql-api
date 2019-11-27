@@ -7,6 +7,8 @@ import (
 )
 
 type ResolutionHandlers struct {
+	OnEvent func(ctx context.Context, r *GeneratedResolver, e *events.Event) error
+
 	CreateSurvey     func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Survey, err error)
 	UpdateSurvey     func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Survey, err error)
 	DeleteSurvey     func(ctx context.Context, r *GeneratedResolver, id string) (item *Survey, err error)
@@ -28,6 +30,7 @@ type ResolutionHandlers struct {
 
 func DefaultResolutionHandlers() ResolutionHandlers {
 	handlers := ResolutionHandlers{
+		OnEvent: func(ctx context.Context, r *GeneratedResolver, e *events.Event) error { return nil },
 
 		CreateSurvey:     CreateSurveyHandler,
 		UpdateSurvey:     UpdateSurveyHandler,

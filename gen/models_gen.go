@@ -23,6 +23,7 @@ type SurveyAnswerFilterType struct {
 	IDGte         *string                   `json:"id_gte"`
 	IDLte         *string                   `json:"id_lte"`
 	IDIn          []string                  `json:"id_in"`
+	IDNull        *bool                     `json:"id_null"`
 	Completed     *bool                     `json:"completed"`
 	CompletedNe   *bool                     `json:"completed_ne"`
 	CompletedGt   *bool                     `json:"completed_gt"`
@@ -30,6 +31,7 @@ type SurveyAnswerFilterType struct {
 	CompletedGte  *bool                     `json:"completed_gte"`
 	CompletedLte  *bool                     `json:"completed_lte"`
 	CompletedIn   []bool                    `json:"completed_in"`
+	CompletedNull *bool                     `json:"completed_null"`
 	Content       *string                   `json:"content"`
 	ContentNe     *string                   `json:"content_ne"`
 	ContentGt     *string                   `json:"content_gt"`
@@ -40,6 +42,7 @@ type SurveyAnswerFilterType struct {
 	ContentLike   *string                   `json:"content_like"`
 	ContentPrefix *string                   `json:"content_prefix"`
 	ContentSuffix *string                   `json:"content_suffix"`
+	ContentNull   *bool                     `json:"content_null"`
 	SurveyID      *string                   `json:"surveyId"`
 	SurveyIDNe    *string                   `json:"surveyId_ne"`
 	SurveyIDGt    *string                   `json:"surveyId_gt"`
@@ -47,6 +50,7 @@ type SurveyAnswerFilterType struct {
 	SurveyIDGte   *string                   `json:"surveyId_gte"`
 	SurveyIDLte   *string                   `json:"surveyId_lte"`
 	SurveyIDIn    []string                  `json:"surveyId_in"`
+	SurveyIDNull  *bool                     `json:"surveyId_null"`
 	UpdatedAt     *time.Time                `json:"updatedAt"`
 	UpdatedAtNe   *time.Time                `json:"updatedAt_ne"`
 	UpdatedAtGt   *time.Time                `json:"updatedAt_gt"`
@@ -54,6 +58,7 @@ type SurveyAnswerFilterType struct {
 	UpdatedAtGte  *time.Time                `json:"updatedAt_gte"`
 	UpdatedAtLte  *time.Time                `json:"updatedAt_lte"`
 	UpdatedAtIn   []*time.Time              `json:"updatedAt_in"`
+	UpdatedAtNull *bool                     `json:"updatedAt_null"`
 	CreatedAt     *time.Time                `json:"createdAt"`
 	CreatedAtNe   *time.Time                `json:"createdAt_ne"`
 	CreatedAtGt   *time.Time                `json:"createdAt_gt"`
@@ -61,6 +66,7 @@ type SurveyAnswerFilterType struct {
 	CreatedAtGte  *time.Time                `json:"createdAt_gte"`
 	CreatedAtLte  *time.Time                `json:"createdAt_lte"`
 	CreatedAtIn   []*time.Time              `json:"createdAt_in"`
+	CreatedAtNull *bool                     `json:"createdAt_null"`
 	UpdatedBy     *string                   `json:"updatedBy"`
 	UpdatedByNe   *string                   `json:"updatedBy_ne"`
 	UpdatedByGt   *string                   `json:"updatedBy_gt"`
@@ -68,6 +74,7 @@ type SurveyAnswerFilterType struct {
 	UpdatedByGte  *string                   `json:"updatedBy_gte"`
 	UpdatedByLte  *string                   `json:"updatedBy_lte"`
 	UpdatedByIn   []string                  `json:"updatedBy_in"`
+	UpdatedByNull *bool                     `json:"updatedBy_null"`
 	CreatedBy     *string                   `json:"createdBy"`
 	CreatedByNe   *string                   `json:"createdBy_ne"`
 	CreatedByGt   *string                   `json:"createdBy_gt"`
@@ -75,7 +82,20 @@ type SurveyAnswerFilterType struct {
 	CreatedByGte  *string                   `json:"createdBy_gte"`
 	CreatedByLte  *string                   `json:"createdBy_lte"`
 	CreatedByIn   []string                  `json:"createdBy_in"`
+	CreatedByNull *bool                     `json:"createdBy_null"`
 	Survey        *SurveyFilterType         `json:"survey"`
+}
+
+type SurveyAnswerSortType struct {
+	ID        *ObjectSortType `json:"id"`
+	Completed *ObjectSortType `json:"completed"`
+	Content   *ObjectSortType `json:"content"`
+	SurveyID  *ObjectSortType `json:"surveyId"`
+	UpdatedAt *ObjectSortType `json:"updatedAt"`
+	CreatedAt *ObjectSortType `json:"createdAt"`
+	UpdatedBy *ObjectSortType `json:"updatedBy"`
+	CreatedBy *ObjectSortType `json:"createdBy"`
+	Survey    *SurveySortType `json:"survey"`
 }
 
 type SurveyFilterType struct {
@@ -88,6 +108,7 @@ type SurveyFilterType struct {
 	IDGte         *string                 `json:"id_gte"`
 	IDLte         *string                 `json:"id_lte"`
 	IDIn          []string                `json:"id_in"`
+	IDNull        *bool                   `json:"id_null"`
 	Name          *string                 `json:"name"`
 	NameNe        *string                 `json:"name_ne"`
 	NameGt        *string                 `json:"name_gt"`
@@ -98,6 +119,7 @@ type SurveyFilterType struct {
 	NameLike      *string                 `json:"name_like"`
 	NamePrefix    *string                 `json:"name_prefix"`
 	NameSuffix    *string                 `json:"name_suffix"`
+	NameNull      *bool                   `json:"name_null"`
 	Content       *string                 `json:"content"`
 	ContentNe     *string                 `json:"content_ne"`
 	ContentGt     *string                 `json:"content_gt"`
@@ -108,6 +130,7 @@ type SurveyFilterType struct {
 	ContentLike   *string                 `json:"content_like"`
 	ContentPrefix *string                 `json:"content_prefix"`
 	ContentSuffix *string                 `json:"content_suffix"`
+	ContentNull   *bool                   `json:"content_null"`
 	UpdatedAt     *time.Time              `json:"updatedAt"`
 	UpdatedAtNe   *time.Time              `json:"updatedAt_ne"`
 	UpdatedAtGt   *time.Time              `json:"updatedAt_gt"`
@@ -115,6 +138,7 @@ type SurveyFilterType struct {
 	UpdatedAtGte  *time.Time              `json:"updatedAt_gte"`
 	UpdatedAtLte  *time.Time              `json:"updatedAt_lte"`
 	UpdatedAtIn   []*time.Time            `json:"updatedAt_in"`
+	UpdatedAtNull *bool                   `json:"updatedAt_null"`
 	CreatedAt     *time.Time              `json:"createdAt"`
 	CreatedAtNe   *time.Time              `json:"createdAt_ne"`
 	CreatedAtGt   *time.Time              `json:"createdAt_gt"`
@@ -122,6 +146,7 @@ type SurveyFilterType struct {
 	CreatedAtGte  *time.Time              `json:"createdAt_gte"`
 	CreatedAtLte  *time.Time              `json:"createdAt_lte"`
 	CreatedAtIn   []*time.Time            `json:"createdAt_in"`
+	CreatedAtNull *bool                   `json:"createdAt_null"`
 	UpdatedBy     *string                 `json:"updatedBy"`
 	UpdatedByNe   *string                 `json:"updatedBy_ne"`
 	UpdatedByGt   *string                 `json:"updatedBy_gt"`
@@ -129,6 +154,7 @@ type SurveyFilterType struct {
 	UpdatedByGte  *string                 `json:"updatedBy_gte"`
 	UpdatedByLte  *string                 `json:"updatedBy_lte"`
 	UpdatedByIn   []string                `json:"updatedBy_in"`
+	UpdatedByNull *bool                   `json:"updatedBy_null"`
 	CreatedBy     *string                 `json:"createdBy"`
 	CreatedByNe   *string                 `json:"createdBy_ne"`
 	CreatedByGt   *string                 `json:"createdBy_gt"`
@@ -136,147 +162,63 @@ type SurveyFilterType struct {
 	CreatedByGte  *string                 `json:"createdBy_gte"`
 	CreatedByLte  *string                 `json:"createdBy_lte"`
 	CreatedByIn   []string                `json:"createdBy_in"`
+	CreatedByNull *bool                   `json:"createdBy_null"`
 	Answers       *SurveyAnswerFilterType `json:"answers"`
+}
+
+type SurveySortType struct {
+	ID         *ObjectSortType       `json:"id"`
+	Name       *ObjectSortType       `json:"name"`
+	Content    *ObjectSortType       `json:"content"`
+	UpdatedAt  *ObjectSortType       `json:"updatedAt"`
+	CreatedAt  *ObjectSortType       `json:"createdAt"`
+	UpdatedBy  *ObjectSortType       `json:"updatedBy"`
+	CreatedBy  *ObjectSortType       `json:"createdBy"`
+	AnswersIds *ObjectSortType       `json:"answersIds"`
+	Answers    *SurveyAnswerSortType `json:"answers"`
 }
 
 type _Service struct {
 	Sdl *string `json:"sdl"`
 }
 
-type SurveyAnswerSortType string
+type ObjectSortType string
 
 const (
-	SurveyAnswerSortTypeIDAsc         SurveyAnswerSortType = "ID_ASC"
-	SurveyAnswerSortTypeIDDesc        SurveyAnswerSortType = "ID_DESC"
-	SurveyAnswerSortTypeCompletedAsc  SurveyAnswerSortType = "COMPLETED_ASC"
-	SurveyAnswerSortTypeCompletedDesc SurveyAnswerSortType = "COMPLETED_DESC"
-	SurveyAnswerSortTypeContentAsc    SurveyAnswerSortType = "CONTENT_ASC"
-	SurveyAnswerSortTypeContentDesc   SurveyAnswerSortType = "CONTENT_DESC"
-	SurveyAnswerSortTypeSurveyIDAsc   SurveyAnswerSortType = "SURVEY_ID_ASC"
-	SurveyAnswerSortTypeSurveyIDDesc  SurveyAnswerSortType = "SURVEY_ID_DESC"
-	SurveyAnswerSortTypeUpdatedAtAsc  SurveyAnswerSortType = "UPDATED_AT_ASC"
-	SurveyAnswerSortTypeUpdatedAtDesc SurveyAnswerSortType = "UPDATED_AT_DESC"
-	SurveyAnswerSortTypeCreatedAtAsc  SurveyAnswerSortType = "CREATED_AT_ASC"
-	SurveyAnswerSortTypeCreatedAtDesc SurveyAnswerSortType = "CREATED_AT_DESC"
-	SurveyAnswerSortTypeUpdatedByAsc  SurveyAnswerSortType = "UPDATED_BY_ASC"
-	SurveyAnswerSortTypeUpdatedByDesc SurveyAnswerSortType = "UPDATED_BY_DESC"
-	SurveyAnswerSortTypeCreatedByAsc  SurveyAnswerSortType = "CREATED_BY_ASC"
-	SurveyAnswerSortTypeCreatedByDesc SurveyAnswerSortType = "CREATED_BY_DESC"
+	ObjectSortTypeAsc  ObjectSortType = "ASC"
+	ObjectSortTypeDesc ObjectSortType = "DESC"
 )
 
-var AllSurveyAnswerSortType = []SurveyAnswerSortType{
-	SurveyAnswerSortTypeIDAsc,
-	SurveyAnswerSortTypeIDDesc,
-	SurveyAnswerSortTypeCompletedAsc,
-	SurveyAnswerSortTypeCompletedDesc,
-	SurveyAnswerSortTypeContentAsc,
-	SurveyAnswerSortTypeContentDesc,
-	SurveyAnswerSortTypeSurveyIDAsc,
-	SurveyAnswerSortTypeSurveyIDDesc,
-	SurveyAnswerSortTypeUpdatedAtAsc,
-	SurveyAnswerSortTypeUpdatedAtDesc,
-	SurveyAnswerSortTypeCreatedAtAsc,
-	SurveyAnswerSortTypeCreatedAtDesc,
-	SurveyAnswerSortTypeUpdatedByAsc,
-	SurveyAnswerSortTypeUpdatedByDesc,
-	SurveyAnswerSortTypeCreatedByAsc,
-	SurveyAnswerSortTypeCreatedByDesc,
+var AllObjectSortType = []ObjectSortType{
+	ObjectSortTypeAsc,
+	ObjectSortTypeDesc,
 }
 
-func (e SurveyAnswerSortType) IsValid() bool {
+func (e ObjectSortType) IsValid() bool {
 	switch e {
-	case SurveyAnswerSortTypeIDAsc, SurveyAnswerSortTypeIDDesc, SurveyAnswerSortTypeCompletedAsc, SurveyAnswerSortTypeCompletedDesc, SurveyAnswerSortTypeContentAsc, SurveyAnswerSortTypeContentDesc, SurveyAnswerSortTypeSurveyIDAsc, SurveyAnswerSortTypeSurveyIDDesc, SurveyAnswerSortTypeUpdatedAtAsc, SurveyAnswerSortTypeUpdatedAtDesc, SurveyAnswerSortTypeCreatedAtAsc, SurveyAnswerSortTypeCreatedAtDesc, SurveyAnswerSortTypeUpdatedByAsc, SurveyAnswerSortTypeUpdatedByDesc, SurveyAnswerSortTypeCreatedByAsc, SurveyAnswerSortTypeCreatedByDesc:
+	case ObjectSortTypeAsc, ObjectSortTypeDesc:
 		return true
 	}
 	return false
 }
 
-func (e SurveyAnswerSortType) String() string {
+func (e ObjectSortType) String() string {
 	return string(e)
 }
 
-func (e *SurveyAnswerSortType) UnmarshalGQL(v interface{}) error {
+func (e *ObjectSortType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = SurveyAnswerSortType(str)
+	*e = ObjectSortType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SurveyAnswerSortType", str)
+		return fmt.Errorf("%s is not a valid ObjectSortType", str)
 	}
 	return nil
 }
 
-func (e SurveyAnswerSortType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type SurveySortType string
-
-const (
-	SurveySortTypeIDAsc          SurveySortType = "ID_ASC"
-	SurveySortTypeIDDesc         SurveySortType = "ID_DESC"
-	SurveySortTypeNameAsc        SurveySortType = "NAME_ASC"
-	SurveySortTypeNameDesc       SurveySortType = "NAME_DESC"
-	SurveySortTypeContentAsc     SurveySortType = "CONTENT_ASC"
-	SurveySortTypeContentDesc    SurveySortType = "CONTENT_DESC"
-	SurveySortTypeUpdatedAtAsc   SurveySortType = "UPDATED_AT_ASC"
-	SurveySortTypeUpdatedAtDesc  SurveySortType = "UPDATED_AT_DESC"
-	SurveySortTypeCreatedAtAsc   SurveySortType = "CREATED_AT_ASC"
-	SurveySortTypeCreatedAtDesc  SurveySortType = "CREATED_AT_DESC"
-	SurveySortTypeUpdatedByAsc   SurveySortType = "UPDATED_BY_ASC"
-	SurveySortTypeUpdatedByDesc  SurveySortType = "UPDATED_BY_DESC"
-	SurveySortTypeCreatedByAsc   SurveySortType = "CREATED_BY_ASC"
-	SurveySortTypeCreatedByDesc  SurveySortType = "CREATED_BY_DESC"
-	SurveySortTypeAnswersIDSAsc  SurveySortType = "ANSWERS_IDS_ASC"
-	SurveySortTypeAnswersIDSDesc SurveySortType = "ANSWERS_IDS_DESC"
-)
-
-var AllSurveySortType = []SurveySortType{
-	SurveySortTypeIDAsc,
-	SurveySortTypeIDDesc,
-	SurveySortTypeNameAsc,
-	SurveySortTypeNameDesc,
-	SurveySortTypeContentAsc,
-	SurveySortTypeContentDesc,
-	SurveySortTypeUpdatedAtAsc,
-	SurveySortTypeUpdatedAtDesc,
-	SurveySortTypeCreatedAtAsc,
-	SurveySortTypeCreatedAtDesc,
-	SurveySortTypeUpdatedByAsc,
-	SurveySortTypeUpdatedByDesc,
-	SurveySortTypeCreatedByAsc,
-	SurveySortTypeCreatedByDesc,
-	SurveySortTypeAnswersIDSAsc,
-	SurveySortTypeAnswersIDSDesc,
-}
-
-func (e SurveySortType) IsValid() bool {
-	switch e {
-	case SurveySortTypeIDAsc, SurveySortTypeIDDesc, SurveySortTypeNameAsc, SurveySortTypeNameDesc, SurveySortTypeContentAsc, SurveySortTypeContentDesc, SurveySortTypeUpdatedAtAsc, SurveySortTypeUpdatedAtDesc, SurveySortTypeCreatedAtAsc, SurveySortTypeCreatedAtDesc, SurveySortTypeUpdatedByAsc, SurveySortTypeUpdatedByDesc, SurveySortTypeCreatedByAsc, SurveySortTypeCreatedByDesc, SurveySortTypeAnswersIDSAsc, SurveySortTypeAnswersIDSDesc:
-		return true
-	}
-	return false
-}
-
-func (e SurveySortType) String() string {
-	return string(e)
-}
-
-func (e *SurveySortType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SurveySortType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SurveySortType", str)
-	}
-	return nil
-}
-
-func (e SurveySortType) MarshalGQL(w io.Writer) {
+func (e ObjectSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

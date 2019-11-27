@@ -27,6 +27,11 @@ type Mutation {
   deleteAllSurveyAnswers: Boolean!
 }
 
+enum ObjectSortType {
+  ASC
+  DESC
+}
+
 type Survey @key(fields: "id") {
   id: ID!
   name: String
@@ -66,23 +71,16 @@ input SurveyUpdateInput {
   answersIds: [ID!]
 }
 
-enum SurveySortType {
-  ID_ASC
-  ID_DESC
-  NAME_ASC
-  NAME_DESC
-  CONTENT_ASC
-  CONTENT_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_BY_ASC
-  UPDATED_BY_DESC
-  CREATED_BY_ASC
-  CREATED_BY_DESC
-  ANSWERS_IDS_ASC
-  ANSWERS_IDS_DESC
+input SurveySortType {
+  id: ObjectSortType
+  name: ObjectSortType
+  content: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  answersIds: ObjectSortType
+  answers: SurveyAnswerSortType
 }
 
 input SurveyFilterType {
@@ -95,6 +93,7 @@ input SurveyFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
+  id_null: Boolean
   name: String
   name_ne: String
   name_gt: String
@@ -105,6 +104,7 @@ input SurveyFilterType {
   name_like: String
   name_prefix: String
   name_suffix: String
+  name_null: Boolean
   content: String
   content_ne: String
   content_gt: String
@@ -115,6 +115,7 @@ input SurveyFilterType {
   content_like: String
   content_prefix: String
   content_suffix: String
+  content_null: Boolean
   updatedAt: Time
   updatedAt_ne: Time
   updatedAt_gt: Time
@@ -122,6 +123,7 @@ input SurveyFilterType {
   updatedAt_gte: Time
   updatedAt_lte: Time
   updatedAt_in: [Time!]
+  updatedAt_null: Boolean
   createdAt: Time
   createdAt_ne: Time
   createdAt_gt: Time
@@ -129,6 +131,7 @@ input SurveyFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  createdAt_null: Boolean
   updatedBy: ID
   updatedBy_ne: ID
   updatedBy_gt: ID
@@ -136,6 +139,7 @@ input SurveyFilterType {
   updatedBy_gte: ID
   updatedBy_lte: ID
   updatedBy_in: [ID!]
+  updatedBy_null: Boolean
   createdBy: ID
   createdBy_ne: ID
   createdBy_gt: ID
@@ -143,6 +147,7 @@ input SurveyFilterType {
   createdBy_gte: ID
   createdBy_lte: ID
   createdBy_in: [ID!]
+  createdBy_null: Boolean
   answers: SurveyAnswerFilterType
 }
 
@@ -164,23 +169,16 @@ input SurveyAnswerUpdateInput {
   surveyId: ID
 }
 
-enum SurveyAnswerSortType {
-  ID_ASC
-  ID_DESC
-  COMPLETED_ASC
-  COMPLETED_DESC
-  CONTENT_ASC
-  CONTENT_DESC
-  SURVEY_ID_ASC
-  SURVEY_ID_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_BY_ASC
-  UPDATED_BY_DESC
-  CREATED_BY_ASC
-  CREATED_BY_DESC
+input SurveyAnswerSortType {
+  id: ObjectSortType
+  completed: ObjectSortType
+  content: ObjectSortType
+  surveyId: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  survey: SurveySortType
 }
 
 input SurveyAnswerFilterType {
@@ -193,6 +191,7 @@ input SurveyAnswerFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
+  id_null: Boolean
   completed: Boolean
   completed_ne: Boolean
   completed_gt: Boolean
@@ -200,6 +199,7 @@ input SurveyAnswerFilterType {
   completed_gte: Boolean
   completed_lte: Boolean
   completed_in: [Boolean!]
+  completed_null: Boolean
   content: String
   content_ne: String
   content_gt: String
@@ -210,6 +210,7 @@ input SurveyAnswerFilterType {
   content_like: String
   content_prefix: String
   content_suffix: String
+  content_null: Boolean
   surveyId: ID
   surveyId_ne: ID
   surveyId_gt: ID
@@ -217,6 +218,7 @@ input SurveyAnswerFilterType {
   surveyId_gte: ID
   surveyId_lte: ID
   surveyId_in: [ID!]
+  surveyId_null: Boolean
   updatedAt: Time
   updatedAt_ne: Time
   updatedAt_gt: Time
@@ -224,6 +226,7 @@ input SurveyAnswerFilterType {
   updatedAt_gte: Time
   updatedAt_lte: Time
   updatedAt_in: [Time!]
+  updatedAt_null: Boolean
   createdAt: Time
   createdAt_ne: Time
   createdAt_gt: Time
@@ -231,6 +234,7 @@ input SurveyAnswerFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  createdAt_null: Boolean
   updatedBy: ID
   updatedBy_ne: ID
   updatedBy_gt: ID
@@ -238,6 +242,7 @@ input SurveyAnswerFilterType {
   updatedBy_gte: ID
   updatedBy_lte: ID
   updatedBy_in: [ID!]
+  updatedBy_null: Boolean
   createdBy: ID
   createdBy_ne: ID
   createdBy_gt: ID
@@ -245,6 +250,7 @@ input SurveyAnswerFilterType {
   createdBy_gte: ID
   createdBy_lte: ID
   createdBy_in: [ID!]
+  createdBy_null: Boolean
   survey: SurveyFilterType
 }
 

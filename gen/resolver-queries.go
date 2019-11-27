@@ -5,7 +5,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/graph-gophers/dataloader"
-	"github.com/novacloudcz/graphql-orm/resolvers"
 	"github.com/vektah/gqlparser/ast"
 )
 
@@ -30,7 +29,7 @@ func QuerySurveyHandler(ctx context.Context, r *GeneratedResolver, opts QuerySur
 	offset := 0
 	limit := 1
 	rt := &SurveyResultType{
-		EntityResultType: resolvers.EntityResultType{
+		EntityResultType: EntityResultType{
 			Offset: &offset,
 			Limit:  &limit,
 			Query:  &query,
@@ -39,11 +38,15 @@ func QuerySurveyHandler(ctx context.Context, r *GeneratedResolver, opts QuerySur
 	}
 	qb := r.DB.Query()
 	if opts.ID != nil {
-		qb = qb.Where("surveys.id = ?", *opts.ID)
+		qb = qb.Where(TableName("surveys")+".id = ?", *opts.ID)
 	}
 
 	var items []*Survey
-	err := rt.GetItems(ctx, qb, "surveys", &items)
+	giOpts := GetItemsOptions{
+		Alias:      TableName("surveys"),
+		Preloaders: []string{},
+	}
+	err := rt.GetItems(ctx, qb, giOpts, &items)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +60,11 @@ type QuerySurveysHandlerOptions struct {
 	Offset *int
 	Limit  *int
 	Q      *string
-	Sort   []SurveySortType
+	Sort   []*SurveySortType
 	Filter *SurveyFilterType
 }
 
-func (r *GeneratedQueryResolver) Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error) {
+func (r *GeneratedQueryResolver) Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []*SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error) {
 	opts := QuerySurveysHandlerOptions{
 		Offset: offset,
 		Limit:  limit,
@@ -72,10 +75,6 @@ func (r *GeneratedQueryResolver) Surveys(ctx context.Context, offset *int, limit
 	return r.Handlers.QuerySurveys(ctx, r.GeneratedResolver, opts)
 }
 func QuerySurveysHandler(ctx context.Context, r *GeneratedResolver, opts QuerySurveysHandlerOptions) (*SurveyResultType, error) {
-	_sort := []resolvers.EntitySort{}
-	for _, s := range opts.Sort {
-		_sort = append(_sort, s)
-	}
 	query := SurveyQueryFilter{opts.Q}
 
 	var selectionSet *ast.SelectionSet
@@ -85,8 +84,13 @@ func QuerySurveysHandler(ctx context.Context, r *GeneratedResolver, opts QuerySu
 		}
 	}
 
+	_sort := []EntitySort{}
+	for _, sort := range opts.Sort {
+		_sort = append(_sort, sort)
+	}
+
 	return &SurveyResultType{
-		EntityResultType: resolvers.EntityResultType{
+		EntityResultType: EntityResultType{
 			Offset:       opts.Offset,
 			Limit:        opts.Limit,
 			Query:        &query,
@@ -100,7 +104,12 @@ func QuerySurveysHandler(ctx context.Context, r *GeneratedResolver, opts QuerySu
 type GeneratedSurveyResultTypeResolver struct{ *GeneratedResolver }
 
 func (r *GeneratedSurveyResultTypeResolver) Items(ctx context.Context, obj *SurveyResultType) (items []*Survey, err error) {
-	err = obj.GetItems(ctx, r.DB.db, "surveys", &items)
+	giOpts := GetItemsOptions{
+		Alias:      TableName("surveys"),
+		Preloaders: []string{},
+	}
+	err = obj.GetItems(ctx, r.DB.db, giOpts, &items)
+
 	return
 }
 
@@ -126,7 +135,7 @@ func (r *GeneratedSurveyResolver) AnswersIds(ctx context.Context, obj *Survey) (
 	ids = []string{}
 
 	items := []*SurveyAnswer{}
-	err = r.DB.Query().Model(obj).Select("survey_answers.id").Related(&items, "Answers").Error
+	err = r.DB.Query().Model(obj).Select(TableName("survey_answers")+".id").Related(&items, "Answers").Error
 
 	for _, item := range items {
 		ids = append(ids, item.ID)
@@ -154,7 +163,7 @@ func QuerySurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, opts Qu
 	offset := 0
 	limit := 1
 	rt := &SurveyAnswerResultType{
-		EntityResultType: resolvers.EntityResultType{
+		EntityResultType: EntityResultType{
 			Offset: &offset,
 			Limit:  &limit,
 			Query:  &query,
@@ -163,11 +172,15 @@ func QuerySurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, opts Qu
 	}
 	qb := r.DB.Query()
 	if opts.ID != nil {
-		qb = qb.Where("survey_answers.id = ?", *opts.ID)
+		qb = qb.Where(TableName("survey_answers")+".id = ?", *opts.ID)
 	}
 
 	var items []*SurveyAnswer
-	err := rt.GetItems(ctx, qb, "survey_answers", &items)
+	giOpts := GetItemsOptions{
+		Alias:      TableName("survey_answers"),
+		Preloaders: []string{},
+	}
+	err := rt.GetItems(ctx, qb, giOpts, &items)
 	if err != nil {
 		return nil, err
 	}
@@ -181,11 +194,11 @@ type QuerySurveyAnswersHandlerOptions struct {
 	Offset *int
 	Limit  *int
 	Q      *string
-	Sort   []SurveyAnswerSortType
+	Sort   []*SurveyAnswerSortType
 	Filter *SurveyAnswerFilterType
 }
 
-func (r *GeneratedQueryResolver) SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error) {
+func (r *GeneratedQueryResolver) SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []*SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error) {
 	opts := QuerySurveyAnswersHandlerOptions{
 		Offset: offset,
 		Limit:  limit,
@@ -196,10 +209,6 @@ func (r *GeneratedQueryResolver) SurveyAnswers(ctx context.Context, offset *int,
 	return r.Handlers.QuerySurveyAnswers(ctx, r.GeneratedResolver, opts)
 }
 func QuerySurveyAnswersHandler(ctx context.Context, r *GeneratedResolver, opts QuerySurveyAnswersHandlerOptions) (*SurveyAnswerResultType, error) {
-	_sort := []resolvers.EntitySort{}
-	for _, s := range opts.Sort {
-		_sort = append(_sort, s)
-	}
 	query := SurveyAnswerQueryFilter{opts.Q}
 
 	var selectionSet *ast.SelectionSet
@@ -209,8 +218,13 @@ func QuerySurveyAnswersHandler(ctx context.Context, r *GeneratedResolver, opts Q
 		}
 	}
 
+	_sort := []EntitySort{}
+	for _, sort := range opts.Sort {
+		_sort = append(_sort, sort)
+	}
+
 	return &SurveyAnswerResultType{
-		EntityResultType: resolvers.EntityResultType{
+		EntityResultType: EntityResultType{
 			Offset:       opts.Offset,
 			Limit:        opts.Limit,
 			Query:        &query,
@@ -224,7 +238,12 @@ func QuerySurveyAnswersHandler(ctx context.Context, r *GeneratedResolver, opts Q
 type GeneratedSurveyAnswerResultTypeResolver struct{ *GeneratedResolver }
 
 func (r *GeneratedSurveyAnswerResultTypeResolver) Items(ctx context.Context, obj *SurveyAnswerResultType) (items []*SurveyAnswer, err error) {
-	err = obj.GetItems(ctx, r.DB.db, "survey_answers", &items)
+	giOpts := GetItemsOptions{
+		Alias:      TableName("survey_answers"),
+		Preloaders: []string{},
+	}
+	err = obj.GetItems(ctx, r.DB.db, giOpts, &items)
+
 	return
 }
 

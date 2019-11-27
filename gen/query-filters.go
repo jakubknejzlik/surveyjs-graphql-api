@@ -32,7 +32,7 @@ func (qf *SurveyQueryFilter) Apply(ctx context.Context, dialect gorm.Dialect, se
 	queryParts := strings.Split(*qf.Query, " ")
 	for _, part := range queryParts {
 		ors := []string{}
-		if err := qf.applyQueryWithFields(dialect, fields, part, "surveys", &ors, values, joins); err != nil {
+		if err := qf.applyQueryWithFields(dialect, fields, part, TableName("surveys"), &ors, values, joins); err != nil {
 			return err
 		}
 		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
@@ -51,19 +51,25 @@ func (qf *SurveyQueryFilter) applyQueryWithFields(dialect gorm.Dialect, fields [
 	}
 
 	if _, ok := fieldsMap["name"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]s"+dialect.Quote("name")+" LIKE ? OR %[1]s"+dialect.Quote("name")+" LIKE ?", dialect.Quote(alias)+"."))
-		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
+
+		column := dialect.Quote(alias) + "." + dialect.Quote("name")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "% "+query+"%")
 	}
 
 	if _, ok := fieldsMap["content"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]s"+dialect.Quote("content")+" LIKE ? OR %[1]s"+dialect.Quote("content")+" LIKE ?", dialect.Quote(alias)+"."))
-		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
+
+		column := dialect.Quote(alias) + "." + dialect.Quote("content")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "% "+query+"%")
 	}
 
 	if fs, ok := fieldsMap["answers"]; ok {
 		_fields := []*ast.Field{}
 		_alias := alias + "_answers"
-		*joins = append(*joins, "LEFT JOIN "+dialect.Quote("survey_answers")+" "+dialect.Quote(_alias)+" ON "+dialect.Quote(_alias)+"."+dialect.Quote("surveyId")+" = "+dialect.Quote(alias)+".id")
+		*joins = append(*joins, "LEFT JOIN "+dialect.Quote(TableName("survey_answers"))+" "+dialect.Quote(_alias)+" ON "+dialect.Quote(_alias)+"."+dialect.Quote("surveyId")+" = "+dialect.Quote(alias)+".id")
 
 		for _, f := range fs {
 			for _, s := range f.SelectionSet {
@@ -105,7 +111,7 @@ func (qf *SurveyAnswerQueryFilter) Apply(ctx context.Context, dialect gorm.Diale
 	queryParts := strings.Split(*qf.Query, " ")
 	for _, part := range queryParts {
 		ors := []string{}
-		if err := qf.applyQueryWithFields(dialect, fields, part, "survey_answers", &ors, values, joins); err != nil {
+		if err := qf.applyQueryWithFields(dialect, fields, part, TableName("survey_answers"), &ors, values, joins); err != nil {
 			return err
 		}
 		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
@@ -124,14 +130,17 @@ func (qf *SurveyAnswerQueryFilter) applyQueryWithFields(dialect gorm.Dialect, fi
 	}
 
 	if _, ok := fieldsMap["content"]; ok {
-		*ors = append(*ors, fmt.Sprintf("%[1]s"+dialect.Quote("content")+" LIKE ? OR %[1]s"+dialect.Quote("content")+" LIKE ?", dialect.Quote(alias)+"."))
-		*values = append(*values, fmt.Sprintf("%s%%", query), fmt.Sprintf("%% %s%%", query))
+
+		column := dialect.Quote(alias) + "." + dialect.Quote("content")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "% "+query+"%")
 	}
 
 	if fs, ok := fieldsMap["survey"]; ok {
 		_fields := []*ast.Field{}
 		_alias := alias + "_survey"
-		*joins = append(*joins, "LEFT JOIN "+dialect.Quote("surveys")+" "+dialect.Quote(_alias)+" ON "+dialect.Quote(_alias)+".id = "+alias+"."+dialect.Quote("surveyId"))
+		*joins = append(*joins, "LEFT JOIN "+dialect.Quote(TableName("surveys"))+" "+dialect.Quote(_alias)+" ON "+dialect.Quote(_alias)+".id = "+alias+"."+dialect.Quote("surveyId"))
 
 		for _, f := range fs {
 			for _, s := range f.SelectionSet {

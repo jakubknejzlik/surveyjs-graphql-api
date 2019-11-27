@@ -28,6 +28,14 @@ func NewDBFromEnvVars() *DB {
 	return NewDBWithString(urlString)
 }
 
+func TableName(name string) string {
+	prefix := os.Getenv("TABLE_NAME_PREFIX")
+	if prefix != "" {
+		return prefix + "_" + name
+	}
+	return name
+}
+
 // NewDB ...
 func NewDB(db *gorm.DB) *DB {
 	prefix := os.Getenv("TABLE_NAME_PREFIX")
@@ -40,7 +48,7 @@ func NewDB(db *gorm.DB) *DB {
 	return &v
 }
 
-// NewDBWithString ...
+// NewDBWithString creates database instance with database URL string
 func NewDBWithString(urlString string) *DB {
 	u, err := url.Parse(urlString)
 	if err != nil {
@@ -53,10 +61,18 @@ func NewDBWithString(urlString string) *DB {
 	if err != nil {
 		panic(err)
 	}
-	db.DB().SetMaxIdleConns(5)
-	db.DB().SetConnMaxLifetime(time.Second * 60)
-	db.DB().SetMaxOpenConns(10)
-	db.LogMode(true)
+
+	if urlString == "sqlite3://:memory:" {
+		db.DB().SetMaxIdleConns(1)
+		db.DB().SetConnMaxLifetime(time.Second * 300)
+		db.DB().SetMaxOpenConns(1)
+	} else {
+		db.DB().SetMaxIdleConns(5)
+		db.DB().SetConnMaxLifetime(time.Second * 60)
+		db.DB().SetMaxOpenConns(10)
+	}
+	db.LogMode(os.Getenv("DEBUG") == "true")
+
 	return NewDB(db)
 }
 
@@ -83,8 +99,8 @@ func (db *DB) Query() *gorm.DB {
 }
 
 // AutoMigrate ...
-func (db *DB) AutoMigrate() {
-	db.db.AutoMigrate(
+func (db *DB) AutoMigrate() *gorm.DB {
+	return db.db.AutoMigrate(
 		Survey{},
 		SurveyAnswer{},
 	)

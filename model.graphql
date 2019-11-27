@@ -1,12 +1,12 @@
-type Survey @key(fields: "id") {
-  name: String
+type Survey @entity @key(fields: "id") {
+  name: String @column
   content: String @column(type: "text")
 
   answers: [SurveyAnswer!]! @relationship(inverse: "survey")
 }
 
-type SurveyAnswer @key(fields: "id") {
-  completed: Boolean
+type SurveyAnswer @entity @key(fields: "id") {
+  completed: Boolean @column
   content: String @column(type: "text")
 
   survey: Survey @relationship(inverse: "answers")

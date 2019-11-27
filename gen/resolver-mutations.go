@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/novacloudcz/graphql-orm/events"
-	"github.com/novacloudcz/graphql-orm/resolvers"
 )
 
 type GeneratedMutationResolver struct{ *GeneratedResolver }
@@ -15,7 +14,7 @@ func (r *GeneratedMutationResolver) CreateSurvey(ctx context.Context, input map[
 	return r.Handlers.CreateSurvey(ctx, r.GeneratedResolver, input)
 }
 func CreateSurveyHandler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Survey, err error) {
-	principalID := getPrincipalIDFromContext(ctx)
+	principalID := GetPrincipalIDFromContext(ctx)
 	now := time.Now()
 	item = &Survey{ID: uuid.Must(uuid.NewV4()).String(), CreatedAt: now, CreatedBy: principalID}
 	tx := r.DB.db.Begin()
@@ -36,24 +35,20 @@ func CreateSurveyHandler(ctx context.Context, r *GeneratedResolver, input map[st
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
 		item.ID = changes.ID
+		event.EntityID = item.ID
 		event.AddNewValue("id", changes.ID)
 	}
 
 	if _, ok := input["name"]; ok && (item.Name != changes.Name) && (item.Name == nil || changes.Name == nil || *item.Name != *changes.Name) {
 		item.Name = changes.Name
+
 		event.AddNewValue("name", changes.Name)
 	}
 
 	if _, ok := input["content"]; ok && (item.Content != changes.Content) && (item.Content == nil || changes.Content == nil || *item.Content != *changes.Content) {
 		item.Content = changes.Content
-		event.AddNewValue("content", changes.Content)
-	}
 
-	if ids, ok := input["answersIds"].([]interface{}); ok {
-		items := []SurveyAnswer{}
-		tx.Find(&items, "id IN (?)", ids)
-		association := tx.Model(&item).Association("Answers")
-		association.Replace(items)
+		event.AddNewValue("content", changes.Content)
 	}
 
 	err = tx.Create(item).Error
@@ -61,6 +56,14 @@ func CreateSurveyHandler(ctx context.Context, r *GeneratedResolver, input map[st
 		tx.Rollback()
 		return
 	}
+
+	if ids, exists := input["answersIds"]; exists {
+		items := []SurveyAnswer{}
+		tx.Find(&items, "id IN (?)", ids)
+		association := tx.Model(&item).Association("Answers")
+		association.Replace(items)
+	}
+
 	err = tx.Commit().Error
 	if err != nil {
 		tx.Rollback()
@@ -68,6 +71,10 @@ func CreateSurveyHandler(ctx context.Context, r *GeneratedResolver, input map[st
 	}
 
 	if len(event.Changes) > 0 {
+		err = r.Handlers.OnEvent(ctx, r, &event)
+		if err != nil {
+			return
+		}
 		err = r.EventController.SendEvent(ctx, &event)
 	}
 
@@ -77,7 +84,7 @@ func (r *GeneratedMutationResolver) UpdateSurvey(ctx context.Context, id string,
 	return r.Handlers.UpdateSurvey(ctx, r.GeneratedResolver, id, input)
 }
 func UpdateSurveyHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Survey, err error) {
-	principalID := getPrincipalIDFromContext(ctx)
+	principalID := GetPrincipalIDFromContext(ctx)
 	item = &Survey{}
 	now := time.Now()
 	tx := r.DB.db.Begin()
@@ -96,7 +103,7 @@ func UpdateSurveyHandler(ctx context.Context, r *GeneratedResolver, id string, i
 		return
 	}
 
-	err = resolvers.GetItem(ctx, tx, item, &id)
+	err = GetItem(ctx, tx, item, &id)
 	if err != nil {
 		return
 	}
@@ -115,18 +122,19 @@ func UpdateSurveyHandler(ctx context.Context, r *GeneratedResolver, id string, i
 		item.Content = changes.Content
 	}
 
-	if ids, ok := input["answersIds"].([]interface{}); ok {
+	err = tx.Save(item).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	if ids, exists := input["answersIds"]; exists {
 		items := []SurveyAnswer{}
 		tx.Find(&items, "id IN (?)", ids)
 		association := tx.Model(&item).Association("Answers")
 		association.Replace(items)
 	}
 
-	err = tx.Save(item).Error
-	if err != nil {
-		tx.Rollback()
-		return
-	}
 	err = tx.Commit().Error
 	if err != nil {
 		tx.Rollback()
@@ -134,6 +142,10 @@ func UpdateSurveyHandler(ctx context.Context, r *GeneratedResolver, id string, i
 	}
 
 	if len(event.Changes) > 0 {
+		err = r.Handlers.OnEvent(ctx, r, &event)
+		if err != nil {
+			return
+		}
 		err = r.EventController.SendEvent(ctx, &event)
 		// data, _ := json.Marshal(event)
 		// fmt.Println("?",string(data))
@@ -145,12 +157,12 @@ func (r *GeneratedMutationResolver) DeleteSurvey(ctx context.Context, id string)
 	return r.Handlers.DeleteSurvey(ctx, r.GeneratedResolver, id)
 }
 func DeleteSurveyHandler(ctx context.Context, r *GeneratedResolver, id string) (item *Survey, err error) {
-	principalID := getPrincipalIDFromContext(ctx)
+	principalID := GetPrincipalIDFromContext(ctx)
 	item = &Survey{}
 	now := time.Now()
 	tx := r.DB.db.Begin()
 
-	err = resolvers.GetItem(ctx, tx, item, &id)
+	err = GetItem(ctx, tx, item, &id)
 	if err != nil {
 		return
 	}
@@ -163,7 +175,7 @@ func DeleteSurveyHandler(ctx context.Context, r *GeneratedResolver, id string) (
 		PrincipalID: principalID,
 	})
 
-	err = tx.Delete(item, "surveys.id = ?", id).Error
+	err = tx.Delete(item, TableName("surveys")+".id = ?", id).Error
 	if err != nil {
 		tx.Rollback()
 		return
@@ -174,6 +186,10 @@ func DeleteSurveyHandler(ctx context.Context, r *GeneratedResolver, id string) (
 		return
 	}
 
+	err = r.Handlers.OnEvent(ctx, r, &event)
+	if err != nil {
+		return
+	}
 	err = r.EventController.SendEvent(ctx, &event)
 
 	return
@@ -190,7 +206,7 @@ func (r *GeneratedMutationResolver) CreateSurveyAnswer(ctx context.Context, inpu
 	return r.Handlers.CreateSurveyAnswer(ctx, r.GeneratedResolver, input)
 }
 func CreateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *SurveyAnswer, err error) {
-	principalID := getPrincipalIDFromContext(ctx)
+	principalID := GetPrincipalIDFromContext(ctx)
 	now := time.Now()
 	item = &SurveyAnswer{ID: uuid.Must(uuid.NewV4()).String(), CreatedAt: now, CreatedBy: principalID}
 	tx := r.DB.db.Begin()
@@ -211,21 +227,25 @@ func CreateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, input 
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
 		item.ID = changes.ID
+		event.EntityID = item.ID
 		event.AddNewValue("id", changes.ID)
 	}
 
 	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
 		item.Completed = changes.Completed
+
 		event.AddNewValue("completed", changes.Completed)
 	}
 
 	if _, ok := input["content"]; ok && (item.Content != changes.Content) && (item.Content == nil || changes.Content == nil || *item.Content != *changes.Content) {
 		item.Content = changes.Content
+
 		event.AddNewValue("content", changes.Content)
 	}
 
 	if _, ok := input["surveyId"]; ok && (item.SurveyID != changes.SurveyID) && (item.SurveyID == nil || changes.SurveyID == nil || *item.SurveyID != *changes.SurveyID) {
 		item.SurveyID = changes.SurveyID
+
 		event.AddNewValue("surveyId", changes.SurveyID)
 	}
 
@@ -234,6 +254,7 @@ func CreateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, input 
 		tx.Rollback()
 		return
 	}
+
 	err = tx.Commit().Error
 	if err != nil {
 		tx.Rollback()
@@ -241,6 +262,10 @@ func CreateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, input 
 	}
 
 	if len(event.Changes) > 0 {
+		err = r.Handlers.OnEvent(ctx, r, &event)
+		if err != nil {
+			return
+		}
 		err = r.EventController.SendEvent(ctx, &event)
 	}
 
@@ -250,7 +275,7 @@ func (r *GeneratedMutationResolver) UpdateSurveyAnswer(ctx context.Context, id s
 	return r.Handlers.UpdateSurveyAnswer(ctx, r.GeneratedResolver, id, input)
 }
 func UpdateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *SurveyAnswer, err error) {
-	principalID := getPrincipalIDFromContext(ctx)
+	principalID := GetPrincipalIDFromContext(ctx)
 	item = &SurveyAnswer{}
 	now := time.Now()
 	tx := r.DB.db.Begin()
@@ -269,7 +294,7 @@ func UpdateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id str
 		return
 	}
 
-	err = resolvers.GetItem(ctx, tx, item, &id)
+	err = GetItem(ctx, tx, item, &id)
 	if err != nil {
 		return
 	}
@@ -299,6 +324,7 @@ func UpdateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id str
 		tx.Rollback()
 		return
 	}
+
 	err = tx.Commit().Error
 	if err != nil {
 		tx.Rollback()
@@ -306,6 +332,10 @@ func UpdateSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id str
 	}
 
 	if len(event.Changes) > 0 {
+		err = r.Handlers.OnEvent(ctx, r, &event)
+		if err != nil {
+			return
+		}
 		err = r.EventController.SendEvent(ctx, &event)
 		// data, _ := json.Marshal(event)
 		// fmt.Println("?",string(data))
@@ -317,12 +347,12 @@ func (r *GeneratedMutationResolver) DeleteSurveyAnswer(ctx context.Context, id s
 	return r.Handlers.DeleteSurveyAnswer(ctx, r.GeneratedResolver, id)
 }
 func DeleteSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id string) (item *SurveyAnswer, err error) {
-	principalID := getPrincipalIDFromContext(ctx)
+	principalID := GetPrincipalIDFromContext(ctx)
 	item = &SurveyAnswer{}
 	now := time.Now()
 	tx := r.DB.db.Begin()
 
-	err = resolvers.GetItem(ctx, tx, item, &id)
+	err = GetItem(ctx, tx, item, &id)
 	if err != nil {
 		return
 	}
@@ -335,7 +365,7 @@ func DeleteSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id str
 		PrincipalID: principalID,
 	})
 
-	err = tx.Delete(item, "survey_answers.id = ?", id).Error
+	err = tx.Delete(item, TableName("survey_answers")+".id = ?", id).Error
 	if err != nil {
 		tx.Rollback()
 		return
@@ -346,6 +376,10 @@ func DeleteSurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, id str
 		return
 	}
 
+	err = r.Handlers.OnEvent(ctx, r, &event)
+	if err != nil {
+		return
+	}
 	err = r.EventController.SendEvent(ctx, &event)
 
 	return

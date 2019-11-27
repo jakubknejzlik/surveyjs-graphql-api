@@ -62,8 +62,8 @@ type ComplexityRoot struct {
 	Query struct {
 		Survey        func(childComplexity int, id *string, q *string, filter *SurveyFilterType) int
 		SurveyAnswer  func(childComplexity int, id *string, q *string, filter *SurveyAnswerFilterType) int
-		SurveyAnswers func(childComplexity int, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) int
-		Surveys       func(childComplexity int, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) int
+		SurveyAnswers func(childComplexity int, offset *int, limit *int, q *string, sort []*SurveyAnswerSortType, filter *SurveyAnswerFilterType) int
+		Surveys       func(childComplexity int, offset *int, limit *int, q *string, sort []*SurveySortType, filter *SurveyFilterType) int
 		_entities     func(childComplexity int, representations []interface{}) int
 		_service      func(childComplexity int) int
 	}
@@ -121,9 +121,9 @@ type QueryResolver interface {
 	_service(ctx context.Context) (*_Service, error)
 	_entities(ctx context.Context, representations []interface{}) ([]_Entity, error)
 	Survey(ctx context.Context, id *string, q *string, filter *SurveyFilterType) (*Survey, error)
-	Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error)
+	Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []*SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error)
 	SurveyAnswer(ctx context.Context, id *string, q *string, filter *SurveyAnswerFilterType) (*SurveyAnswer, error)
-	SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error)
+	SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []*SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error)
 }
 type SurveyResolver interface {
 	Answers(ctx context.Context, obj *Survey) ([]*SurveyAnswer, error)
@@ -277,7 +277,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SurveyAnswers(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType)), true
+		return e.complexity.Query.SurveyAnswers(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]*SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType)), true
 
 	case "Query.surveys":
 		if e.complexity.Query.Surveys == nil {
@@ -289,7 +289,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Surveys(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveySortType), args["filter"].(*SurveyFilterType)), true
+		return e.complexity.Query.Surveys(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]*SurveySortType), args["filter"].(*SurveyFilterType)), true
 
 	case "Query._entities":
 		if e.complexity.Query._entities == nil {
@@ -564,6 +564,11 @@ type Mutation {
   deleteAllSurveyAnswers: Boolean!
 }
 
+enum ObjectSortType {
+  ASC
+  DESC
+}
+
 type Survey {
   id: ID!
   name: String
@@ -603,23 +608,16 @@ input SurveyUpdateInput {
   answersIds: [ID!]
 }
 
-enum SurveySortType {
-  ID_ASC
-  ID_DESC
-  NAME_ASC
-  NAME_DESC
-  CONTENT_ASC
-  CONTENT_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_BY_ASC
-  UPDATED_BY_DESC
-  CREATED_BY_ASC
-  CREATED_BY_DESC
-  ANSWERS_IDS_ASC
-  ANSWERS_IDS_DESC
+input SurveySortType {
+  id: ObjectSortType
+  name: ObjectSortType
+  content: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  answersIds: ObjectSortType
+  answers: SurveyAnswerSortType
 }
 
 input SurveyFilterType {
@@ -632,6 +630,7 @@ input SurveyFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
+  id_null: Boolean
   name: String
   name_ne: String
   name_gt: String
@@ -642,6 +641,7 @@ input SurveyFilterType {
   name_like: String
   name_prefix: String
   name_suffix: String
+  name_null: Boolean
   content: String
   content_ne: String
   content_gt: String
@@ -652,6 +652,7 @@ input SurveyFilterType {
   content_like: String
   content_prefix: String
   content_suffix: String
+  content_null: Boolean
   updatedAt: Time
   updatedAt_ne: Time
   updatedAt_gt: Time
@@ -659,6 +660,7 @@ input SurveyFilterType {
   updatedAt_gte: Time
   updatedAt_lte: Time
   updatedAt_in: [Time!]
+  updatedAt_null: Boolean
   createdAt: Time
   createdAt_ne: Time
   createdAt_gt: Time
@@ -666,6 +668,7 @@ input SurveyFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  createdAt_null: Boolean
   updatedBy: ID
   updatedBy_ne: ID
   updatedBy_gt: ID
@@ -673,6 +676,7 @@ input SurveyFilterType {
   updatedBy_gte: ID
   updatedBy_lte: ID
   updatedBy_in: [ID!]
+  updatedBy_null: Boolean
   createdBy: ID
   createdBy_ne: ID
   createdBy_gt: ID
@@ -680,6 +684,7 @@ input SurveyFilterType {
   createdBy_gte: ID
   createdBy_lte: ID
   createdBy_in: [ID!]
+  createdBy_null: Boolean
   answers: SurveyAnswerFilterType
 }
 
@@ -701,23 +706,16 @@ input SurveyAnswerUpdateInput {
   surveyId: ID
 }
 
-enum SurveyAnswerSortType {
-  ID_ASC
-  ID_DESC
-  COMPLETED_ASC
-  COMPLETED_DESC
-  CONTENT_ASC
-  CONTENT_DESC
-  SURVEY_ID_ASC
-  SURVEY_ID_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_BY_ASC
-  UPDATED_BY_DESC
-  CREATED_BY_ASC
-  CREATED_BY_DESC
+input SurveyAnswerSortType {
+  id: ObjectSortType
+  completed: ObjectSortType
+  content: ObjectSortType
+  surveyId: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  survey: SurveySortType
 }
 
 input SurveyAnswerFilterType {
@@ -730,6 +728,7 @@ input SurveyAnswerFilterType {
   id_gte: ID
   id_lte: ID
   id_in: [ID!]
+  id_null: Boolean
   completed: Boolean
   completed_ne: Boolean
   completed_gt: Boolean
@@ -737,6 +736,7 @@ input SurveyAnswerFilterType {
   completed_gte: Boolean
   completed_lte: Boolean
   completed_in: [Boolean!]
+  completed_null: Boolean
   content: String
   content_ne: String
   content_gt: String
@@ -747,6 +747,7 @@ input SurveyAnswerFilterType {
   content_like: String
   content_prefix: String
   content_suffix: String
+  content_null: Boolean
   surveyId: ID
   surveyId_ne: ID
   surveyId_gt: ID
@@ -754,6 +755,7 @@ input SurveyAnswerFilterType {
   surveyId_gte: ID
   surveyId_lte: ID
   surveyId_in: [ID!]
+  surveyId_null: Boolean
   updatedAt: Time
   updatedAt_ne: Time
   updatedAt_gt: Time
@@ -761,6 +763,7 @@ input SurveyAnswerFilterType {
   updatedAt_gte: Time
   updatedAt_lte: Time
   updatedAt_in: [Time!]
+  updatedAt_null: Boolean
   createdAt: Time
   createdAt_ne: Time
   createdAt_gt: Time
@@ -768,6 +771,7 @@ input SurveyAnswerFilterType {
   createdAt_gte: Time
   createdAt_lte: Time
   createdAt_in: [Time!]
+  createdAt_null: Boolean
   updatedBy: ID
   updatedBy_ne: ID
   updatedBy_gt: ID
@@ -775,6 +779,7 @@ input SurveyAnswerFilterType {
   updatedBy_gte: ID
   updatedBy_lte: ID
   updatedBy_in: [ID!]
+  updatedBy_null: Boolean
   createdBy: ID
   createdBy_ne: ID
   createdBy_gt: ID
@@ -782,6 +787,7 @@ input SurveyAnswerFilterType {
   createdBy_gte: ID
   createdBy_lte: ID
   createdBy_in: [ID!]
+  createdBy_null: Boolean
   survey: SurveyFilterType
 }
 
@@ -985,9 +991,9 @@ func (ec *executionContext) field_Query_surveyAnswers_args(ctx context.Context, 
 		}
 	}
 	args["q"] = arg2
-	var arg3 []SurveyAnswerSortType
+	var arg3 []*SurveyAnswerSortType
 	if tmp, ok := rawArgs["sort"]; ok {
-		arg3, err = ec.unmarshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, tmp)
+		arg3, err = ec.unmarshalOSurveyAnswerSortType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1061,9 +1067,9 @@ func (ec *executionContext) field_Query_surveys_args(ctx context.Context, rawArg
 		}
 	}
 	args["q"] = arg2
-	var arg3 []SurveySortType
+	var arg3 []*SurveySortType
 	if tmp, ok := rawArgs["sort"]; ok {
-		arg3, err = ec.unmarshalOSurveySortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, tmp)
+		arg3, err = ec.unmarshalOSurveySortType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1602,7 +1608,7 @@ func (ec *executionContext) _Query_surveys(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Surveys(rctx, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveySortType), args["filter"].(*SurveyFilterType))
+		return ec.resolvers.Query().Surveys(rctx, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]*SurveySortType), args["filter"].(*SurveyFilterType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1684,7 +1690,7 @@ func (ec *executionContext) _Query_surveyAnswers(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SurveyAnswers(rctx, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType))
+		return ec.resolvers.Query().SurveyAnswers(rctx, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]*SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3797,6 +3803,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
+		case "id_null":
+			var err error
+			it.IDNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "completed":
 			var err error
 			it.Completed, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -3836,6 +3848,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 		case "completed_in":
 			var err error
 			it.CompletedIn, err = ec.unmarshalOBoolean2ᚕbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "completed_null":
+			var err error
+			it.CompletedNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3899,6 +3917,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
+		case "content_null":
+			var err error
+			it.ContentNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "surveyId":
 			var err error
 			it.SurveyID, err = ec.unmarshalOID2ᚖstring(ctx, v)
@@ -3938,6 +3962,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 		case "surveyId_in":
 			var err error
 			it.SurveyIDIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "surveyId_null":
+			var err error
+			it.SurveyIDNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3983,6 +4013,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
+		case "updatedAt_null":
+			var err error
+			it.UpdatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
@@ -4022,6 +4058,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 		case "createdAt_in":
 			var err error
 			it.CreatedAtIn, err = ec.unmarshalOTime2ᚕᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt_null":
+			var err error
+			it.CreatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4067,6 +4109,12 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
+		case "updatedBy_null":
+			var err error
+			it.UpdatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdBy":
 			var err error
 			it.CreatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
@@ -4109,9 +4157,81 @@ func (ec *executionContext) unmarshalInputSurveyAnswerFilterType(ctx context.Con
 			if err != nil {
 				return it, err
 			}
+		case "createdBy_null":
+			var err error
+			it.CreatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "survey":
 			var err error
 			it.Survey, err = ec.unmarshalOSurveyFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSurveyAnswerSortType(ctx context.Context, obj interface{}) (SurveyAnswerSortType, error) {
+	var it SurveyAnswerSortType
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "completed":
+			var err error
+			it.Completed, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "content":
+			var err error
+			it.Content, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "surveyId":
+			var err error
+			it.SurveyID, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt":
+			var err error
+			it.CreatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy":
+			var err error
+			it.UpdatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy":
+			var err error
+			it.CreatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "survey":
+			var err error
+			it.Survey, err = ec.unmarshalOSurveySortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4181,6 +4301,12 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "id_null":
+			var err error
+			it.IDNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "name":
 			var err error
 			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
@@ -4238,6 +4364,12 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 		case "name_suffix":
 			var err error
 			it.NameSuffix, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name_null":
+			var err error
+			it.NameNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4301,6 +4433,12 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "content_null":
+			var err error
+			it.ContentNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
@@ -4340,6 +4478,12 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 		case "updatedAt_in":
 			var err error
 			it.UpdatedAtIn, err = ec.unmarshalOTime2ᚕᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt_null":
+			var err error
+			it.UpdatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4385,6 +4529,12 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "createdAt_null":
+			var err error
+			it.CreatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedBy":
 			var err error
 			it.UpdatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
@@ -4424,6 +4574,12 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 		case "updatedBy_in":
 			var err error
 			it.UpdatedByIn, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy_null":
+			var err error
+			it.UpdatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4469,9 +4625,81 @@ func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "createdBy_null":
+			var err error
+			it.CreatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "answers":
 			var err error
 			it.Answers, err = ec.unmarshalOSurveyAnswerFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSurveySortType(ctx context.Context, obj interface{}) (SurveySortType, error) {
+	var it SurveySortType
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "content":
+			var err error
+			it.Content, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt":
+			var err error
+			it.CreatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedBy":
+			var err error
+			it.UpdatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdBy":
+			var err error
+			it.CreatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "answersIds":
+			var err error
+			it.AnswersIds, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "answers":
+			var err error
+			it.Answers, err = ec.unmarshalOSurveyAnswerSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5371,12 +5599,15 @@ func (ec *executionContext) unmarshalNSurveyAnswerFilterType2ᚖgithubᚗcomᚋj
 }
 
 func (ec *executionContext) unmarshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) (SurveyAnswerSortType, error) {
-	var res SurveyAnswerSortType
-	return res, res.UnmarshalGQL(v)
+	return ec.unmarshalInputSurveyAnswerSortType(ctx, v)
 }
 
-func (ec *executionContext) marshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, sel ast.SelectionSet, v SurveyAnswerSortType) graphql.Marshaler {
-	return v
+func (ec *executionContext) unmarshalNSurveyAnswerSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) (*SurveyAnswerSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalNSurveyAnswerUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
@@ -5406,12 +5637,15 @@ func (ec *executionContext) unmarshalNSurveyFilterType2ᚖgithubᚗcomᚋjakubkn
 }
 
 func (ec *executionContext) unmarshalNSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, v interface{}) (SurveySortType, error) {
-	var res SurveySortType
-	return res, res.UnmarshalGQL(v)
+	return ec.unmarshalInputSurveySortType(ctx, v)
 }
 
-func (ec *executionContext) marshalNSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, sel ast.SelectionSet, v SurveySortType) graphql.Marshaler {
-	return v
+func (ec *executionContext) unmarshalNSurveySortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, v interface{}) (*SurveySortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalNSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalNSurveyUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
@@ -5915,6 +6149,30 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
+func (ec *executionContext) unmarshalOObjectSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx context.Context, v interface{}) (ObjectSortType, error) {
+	var res ObjectSortType
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalOObjectSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx context.Context, sel ast.SelectionSet, v ObjectSortType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx context.Context, v interface{}) (*ObjectSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOObjectSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOObjectSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐObjectSortType(ctx context.Context, sel ast.SelectionSet, v *ObjectSortType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -6035,7 +6293,11 @@ func (ec *executionContext) marshalOSurveyAnswerResultType2ᚖgithubᚗcomᚋjak
 	return ec._SurveyAnswerResultType(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) ([]SurveyAnswerSortType, error) {
+func (ec *executionContext) unmarshalOSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) (SurveyAnswerSortType, error) {
+	return ec.unmarshalInputSurveyAnswerSortType(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) ([]*SurveyAnswerSortType, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -6045,9 +6307,9 @@ func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjak
 		}
 	}
 	var err error
-	res := make([]SurveyAnswerSortType, len(vSlice))
+	res := make([]*SurveyAnswerSortType, len(vSlice))
 	for i := range vSlice {
-		res[i], err = ec.unmarshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNSurveyAnswerSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6055,44 +6317,12 @@ func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjak
 	return res, nil
 }
 
-func (ec *executionContext) marshalOSurveyAnswerSortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, sel ast.SelectionSet, v []SurveyAnswerSortType) graphql.Marshaler {
+func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx context.Context, v interface{}) (*SurveyAnswerSortType, error) {
 	if v == nil {
-		return graphql.Null
+		return nil, nil
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
+	res, err := ec.unmarshalOSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOSurveyFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyFilterType(ctx context.Context, v interface{}) (SurveyFilterType, error) {
@@ -6138,7 +6368,11 @@ func (ec *executionContext) marshalOSurveyResultType2ᚖgithubᚗcomᚋjakubknej
 	return ec._SurveyResultType(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSurveySortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, v interface{}) ([]SurveySortType, error) {
+func (ec *executionContext) unmarshalOSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, v interface{}) (SurveySortType, error) {
+	return ec.unmarshalInputSurveySortType(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOSurveySortType2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, v interface{}) ([]*SurveySortType, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -6148,9 +6382,9 @@ func (ec *executionContext) unmarshalOSurveySortType2ᚕgithubᚗcomᚋjakubknej
 		}
 	}
 	var err error
-	res := make([]SurveySortType, len(vSlice))
+	res := make([]*SurveySortType, len(vSlice))
 	for i := range vSlice {
-		res[i], err = ec.unmarshalNSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNSurveySortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6158,44 +6392,12 @@ func (ec *executionContext) unmarshalOSurveySortType2ᚕgithubᚗcomᚋjakubknej
 	return res, nil
 }
 
-func (ec *executionContext) marshalOSurveySortType2ᚕgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, sel ast.SelectionSet, v []SurveySortType) graphql.Marshaler {
+func (ec *executionContext) unmarshalOSurveySortType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx context.Context, v interface{}) (*SurveySortType, error) {
 	if v == nil {
-		return graphql.Null
+		return nil, nil
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
+	res, err := ec.unmarshalOSurveySortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveySortType(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
