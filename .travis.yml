@@ -1,9 +1,5 @@
 language: go
 
-branches:
-  only:
-  - master
-
 services:
   - docker
 
