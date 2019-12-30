@@ -4,7 +4,6 @@ services:
   - docker
 
 install:
-  - go get -d -v ./...
   - go get github.com/mitchellh/gox
 
 script:

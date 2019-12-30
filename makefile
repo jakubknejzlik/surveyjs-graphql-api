@@ -11,7 +11,7 @@ lint:
 	docker run -it --rm -v "$(PWD)/Dockerfile:/Dockerfile:ro" redcoolbeans/dockerlint
 
 build:
-	go get ./...
+	# go get ./...
 	# GOOS=linux GOARCH=amd64 go build -o bin/go-survey-alpine
 	docker build -t $(GIT_TAG) .
 
