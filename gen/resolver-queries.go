@@ -110,6 +110,15 @@ func (r *GeneratedSurveyResultTypeResolver) Items(ctx context.Context, obj *Surv
 	}
 	err = obj.GetItems(ctx, r.DB.db, giOpts, &items)
 
+	uniqueItems := []*Survey{}
+	idMap := map[string]bool{}
+	for _, item := range items {
+		if _, ok := idMap[item.ID]; !ok {
+			idMap[item.ID] = true
+			uniqueItems = append(uniqueItems, item)
+		}
+	}
+	items = uniqueItems
 	return
 }
 
@@ -120,9 +129,9 @@ func (r *GeneratedSurveyResultTypeResolver) Count(ctx context.Context, obj *Surv
 type GeneratedSurveyResolver struct{ *GeneratedResolver }
 
 func (r *GeneratedSurveyResolver) Answers(ctx context.Context, obj *Survey) (res []*SurveyAnswer, err error) {
-	return r.Handlers.SurveyAnswers(ctx, r, obj)
+	return r.Handlers.SurveyAnswers(ctx, r.GeneratedResolver, obj)
 }
-func SurveyAnswersHandler(ctx context.Context, r *GeneratedSurveyResolver, obj *Survey) (res []*SurveyAnswer, err error) {
+func SurveyAnswersHandler(ctx context.Context, r *GeneratedResolver, obj *Survey) (res []*SurveyAnswer, err error) {
 
 	items := []*SurveyAnswer{}
 	err = r.DB.Query().Model(obj).Related(&items, "Answers").Error
@@ -244,6 +253,15 @@ func (r *GeneratedSurveyAnswerResultTypeResolver) Items(ctx context.Context, obj
 	}
 	err = obj.GetItems(ctx, r.DB.db, giOpts, &items)
 
+	uniqueItems := []*SurveyAnswer{}
+	idMap := map[string]bool{}
+	for _, item := range items {
+		if _, ok := idMap[item.ID]; !ok {
+			idMap[item.ID] = true
+			uniqueItems = append(uniqueItems, item)
+		}
+	}
+	items = uniqueItems
 	return
 }
 
@@ -254,9 +272,9 @@ func (r *GeneratedSurveyAnswerResultTypeResolver) Count(ctx context.Context, obj
 type GeneratedSurveyAnswerResolver struct{ *GeneratedResolver }
 
 func (r *GeneratedSurveyAnswerResolver) Survey(ctx context.Context, obj *SurveyAnswer) (res *Survey, err error) {
-	return r.Handlers.SurveyAnswerSurvey(ctx, r, obj)
+	return r.Handlers.SurveyAnswerSurvey(ctx, r.GeneratedResolver, obj)
 }
-func SurveyAnswerSurveyHandler(ctx context.Context, r *GeneratedSurveyAnswerResolver, obj *SurveyAnswer) (res *Survey, err error) {
+func SurveyAnswerSurveyHandler(ctx context.Context, r *GeneratedResolver, obj *SurveyAnswer) (res *Survey, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	if obj.SurveyID != nil {

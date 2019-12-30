@@ -13,31 +13,31 @@ func (s SurveySortType) ApplyWithAlias(ctx context.Context, dialect gorm.Dialect
 	aliasPrefix := dialect.Quote(alias) + "."
 
 	if s.ID != nil {
-		*sorts = append(*sorts, aliasPrefix+"id "+s.ID.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("id")+" "+s.ID.String())
 	}
 
 	if s.Name != nil {
-		*sorts = append(*sorts, aliasPrefix+"name "+s.Name.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("name")+" "+s.Name.String())
 	}
 
 	if s.Content != nil {
-		*sorts = append(*sorts, aliasPrefix+"content "+s.Content.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("content")+" "+s.Content.String())
 	}
 
 	if s.UpdatedAt != nil {
-		*sorts = append(*sorts, aliasPrefix+"updatedAt "+s.UpdatedAt.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("updatedAt")+" "+s.UpdatedAt.String())
 	}
 
 	if s.CreatedAt != nil {
-		*sorts = append(*sorts, aliasPrefix+"createdAt "+s.CreatedAt.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("createdAt")+" "+s.CreatedAt.String())
 	}
 
 	if s.UpdatedBy != nil {
-		*sorts = append(*sorts, aliasPrefix+"updatedBy "+s.UpdatedBy.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("updatedBy")+" "+s.UpdatedBy.String())
 	}
 
 	if s.CreatedBy != nil {
-		*sorts = append(*sorts, aliasPrefix+"createdBy "+s.CreatedBy.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("createdBy")+" "+s.CreatedBy.String())
 	}
 
 	if s.Answers != nil {
@@ -59,35 +59,35 @@ func (s SurveyAnswerSortType) ApplyWithAlias(ctx context.Context, dialect gorm.D
 	aliasPrefix := dialect.Quote(alias) + "."
 
 	if s.ID != nil {
-		*sorts = append(*sorts, aliasPrefix+"id "+s.ID.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("id")+" "+s.ID.String())
 	}
 
 	if s.Completed != nil {
-		*sorts = append(*sorts, aliasPrefix+"completed "+s.Completed.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("completed")+" "+s.Completed.String())
 	}
 
 	if s.Content != nil {
-		*sorts = append(*sorts, aliasPrefix+"content "+s.Content.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("content")+" "+s.Content.String())
 	}
 
 	if s.SurveyID != nil {
-		*sorts = append(*sorts, aliasPrefix+"surveyId "+s.SurveyID.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("surveyId")+" "+s.SurveyID.String())
 	}
 
 	if s.UpdatedAt != nil {
-		*sorts = append(*sorts, aliasPrefix+"updatedAt "+s.UpdatedAt.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("updatedAt")+" "+s.UpdatedAt.String())
 	}
 
 	if s.CreatedAt != nil {
-		*sorts = append(*sorts, aliasPrefix+"createdAt "+s.CreatedAt.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("createdAt")+" "+s.CreatedAt.String())
 	}
 
 	if s.UpdatedBy != nil {
-		*sorts = append(*sorts, aliasPrefix+"updatedBy "+s.UpdatedBy.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("updatedBy")+" "+s.UpdatedBy.String())
 	}
 
 	if s.CreatedBy != nil {
-		*sorts = append(*sorts, aliasPrefix+"createdBy "+s.CreatedBy.String())
+		*sorts = append(*sorts, aliasPrefix+dialect.Quote("createdBy")+" "+s.CreatedBy.String())
 	}
 
 	if s.Survey != nil {

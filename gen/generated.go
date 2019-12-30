@@ -63,6 +63,7 @@ type ComplexityRoot struct {
 		Survey        func(childComplexity int, id *string, q *string, filter *SurveyFilterType) int
 		SurveyAnswer  func(childComplexity int, id *string, q *string, filter *SurveyAnswerFilterType) int
 		SurveyAnswers func(childComplexity int, offset *int, limit *int, q *string, sort []*SurveyAnswerSortType, filter *SurveyAnswerFilterType) int
+		SurveyExport  func(childComplexity int, filter *SurveyExportFilterType) int
 		Surveys       func(childComplexity int, offset *int, limit *int, q *string, sort []*SurveySortType, filter *SurveyFilterType) int
 		_entities     func(childComplexity int, representations []interface{}) int
 		_service      func(childComplexity int) int
@@ -97,6 +98,27 @@ type ComplexityRoot struct {
 		Items func(childComplexity int) int
 	}
 
+	SurveyExport struct {
+		Fields func(childComplexity int) int
+		Rows   func(childComplexity int) int
+	}
+
+	SurveyExportField struct {
+		Key   func(childComplexity int) int
+		Title func(childComplexity int) int
+	}
+
+	SurveyExportRow struct {
+		Answer func(childComplexity int) int
+		Values func(childComplexity int) int
+	}
+
+	SurveyExportValue struct {
+		Key   func(childComplexity int) int
+		Text  func(childComplexity int) int
+		Value func(childComplexity int) int
+	}
+
 	SurveyResultType struct {
 		Count func(childComplexity int) int
 		Items func(childComplexity int) int
@@ -124,6 +146,7 @@ type QueryResolver interface {
 	Surveys(ctx context.Context, offset *int, limit *int, q *string, sort []*SurveySortType, filter *SurveyFilterType) (*SurveyResultType, error)
 	SurveyAnswer(ctx context.Context, id *string, q *string, filter *SurveyAnswerFilterType) (*SurveyAnswer, error)
 	SurveyAnswers(ctx context.Context, offset *int, limit *int, q *string, sort []*SurveyAnswerSortType, filter *SurveyAnswerFilterType) (*SurveyAnswerResultType, error)
+	SurveyExport(ctx context.Context, filter *SurveyExportFilterType) (*SurveyExport, error)
 }
 type SurveyResolver interface {
 	Answers(ctx context.Context, obj *Survey) ([]*SurveyAnswer, error)
@@ -278,6 +301,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SurveyAnswers(childComplexity, args["offset"].(*int), args["limit"].(*int), args["q"].(*string), args["sort"].([]*SurveyAnswerSortType), args["filter"].(*SurveyAnswerFilterType)), true
+
+	case "Query.surveyExport":
+		if e.complexity.Query.SurveyExport == nil {
+			break
+		}
+
+		args, err := ec.field_Query_surveyExport_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SurveyExport(childComplexity, args["filter"].(*SurveyExportFilterType)), true
 
 	case "Query.surveys":
 		if e.complexity.Query.Surveys == nil {
@@ -450,6 +485,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SurveyAnswerResultType.Items(childComplexity), true
 
+	case "SurveyExport.fields":
+		if e.complexity.SurveyExport.Fields == nil {
+			break
+		}
+
+		return e.complexity.SurveyExport.Fields(childComplexity), true
+
+	case "SurveyExport.rows":
+		if e.complexity.SurveyExport.Rows == nil {
+			break
+		}
+
+		return e.complexity.SurveyExport.Rows(childComplexity), true
+
+	case "SurveyExportField.key":
+		if e.complexity.SurveyExportField.Key == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportField.Key(childComplexity), true
+
+	case "SurveyExportField.title":
+		if e.complexity.SurveyExportField.Title == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportField.Title(childComplexity), true
+
+	case "SurveyExportRow.answer":
+		if e.complexity.SurveyExportRow.Answer == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportRow.Answer(childComplexity), true
+
+	case "SurveyExportRow.values":
+		if e.complexity.SurveyExportRow.Values == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportRow.Values(childComplexity), true
+
+	case "SurveyExportValue.key":
+		if e.complexity.SurveyExportValue.Key == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportValue.Key(childComplexity), true
+
+	case "SurveyExportValue.text":
+		if e.complexity.SurveyExportValue.Text == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportValue.Text(childComplexity), true
+
+	case "SurveyExportValue.value":
+		if e.complexity.SurveyExportValue.Value == nil {
+			break
+		}
+
+		return e.complexity.SurveyExportValue.Value(childComplexity), true
+
 	case "SurveyResultType.count":
 		if e.complexity.SurveyResultType.Count == nil {
 			break
@@ -567,6 +665,36 @@ type Mutation {
 enum ObjectSortType {
   ASC
   DESC
+}
+
+type SurveyExportField {
+  key: String!
+  title: String
+}
+
+type SurveyExportRow {
+  answer: SurveyAnswer!
+  values: [SurveyExportValue]!
+}
+
+type SurveyExportValue {
+  key: String!
+  value: String
+  text: String
+}
+
+type SurveyExport {
+  fields: [SurveyExportField!]!
+  rows: [SurveyExportRow!]!
+}
+
+input SurveyExportFilterType {
+  surveyID: ID
+  answerIDs: [ID!]
+}
+
+extend type Query {
+  surveyExport(filter: SurveyExportFilterType): SurveyExport
 }
 
 type Survey {
@@ -1007,6 +1135,20 @@ func (ec *executionContext) field_Query_surveyAnswers_args(ctx context.Context, 
 		}
 	}
 	args["filter"] = arg4
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_surveyExport_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *SurveyExportFilterType
+	if tmp, ok := rawArgs["filter"]; ok {
+		arg0, err = ec.unmarshalOSurveyExportFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportFilterType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -1703,6 +1845,47 @@ func (ec *executionContext) _Query_surveyAnswers(ctx context.Context, field grap
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOSurveyAnswerResultType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerResultType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_surveyExport(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_surveyExport_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SurveyExport(rctx, args["filter"].(*SurveyExportFilterType))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*SurveyExport)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOSurveyExport2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExport(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2482,6 +2665,330 @@ func (ec *executionContext) _SurveyAnswerResultType_count(ctx context.Context, f
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExport_fields(ctx context.Context, field graphql.CollectedField, obj *SurveyExport) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExport",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*SurveyExportField)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNSurveyExportField2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportField(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExport_rows(ctx context.Context, field graphql.CollectedField, obj *SurveyExport) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExport",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*SurveyExportRow)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNSurveyExportRow2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportRow(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportField_key(ctx context.Context, field graphql.CollectedField, obj *SurveyExportField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportField",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportField_title(ctx context.Context, field graphql.CollectedField, obj *SurveyExportField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportField",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportRow_answer(ctx context.Context, field graphql.CollectedField, obj *SurveyExportRow) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportRow",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Answer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*SurveyAnswer)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNSurveyAnswer2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportRow_values(ctx context.Context, field graphql.CollectedField, obj *SurveyExportRow) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportRow",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Values, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*SurveyExportValue)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNSurveyExportValue2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportValue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportValue_key(ctx context.Context, field graphql.CollectedField, obj *SurveyExportValue) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportValue",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportValue_value(ctx context.Context, field graphql.CollectedField, obj *SurveyExportValue) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportValue",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SurveyExportValue_text(ctx context.Context, field graphql.CollectedField, obj *SurveyExportValue) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "SurveyExportValue",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SurveyResultType_items(ctx context.Context, field graphql.CollectedField, obj *SurveyResultType) (ret graphql.Marshaler) {
@@ -4241,6 +4748,30 @@ func (ec *executionContext) unmarshalInputSurveyAnswerSortType(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSurveyExportFilterType(ctx context.Context, obj interface{}) (SurveyExportFilterType, error) {
+	var it SurveyExportFilterType
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "surveyID":
+			var err error
+			it.SurveyID, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "answerIDs":
+			var err error
+			it.AnswerIDs, err = ec.unmarshalOID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSurveyFilterType(ctx context.Context, obj interface{}) (SurveyFilterType, error) {
 	var it SurveyFilterType
 	var asMap = obj.(map[string]interface{})
@@ -4883,6 +5414,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_surveyAnswers(ctx, field)
 				return res
 			})
+		case "surveyExport":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_surveyExport(ctx, field)
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -5062,6 +5604,130 @@ func (ec *executionContext) _SurveyAnswerResultType(ctx context.Context, sel ast
 				}
 				return res
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyExportImplementors = []string{"SurveyExport"}
+
+func (ec *executionContext) _SurveyExport(ctx context.Context, sel ast.SelectionSet, obj *SurveyExport) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, surveyExportImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyExport")
+		case "fields":
+			out.Values[i] = ec._SurveyExport_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "rows":
+			out.Values[i] = ec._SurveyExport_rows(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyExportFieldImplementors = []string{"SurveyExportField"}
+
+func (ec *executionContext) _SurveyExportField(ctx context.Context, sel ast.SelectionSet, obj *SurveyExportField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, surveyExportFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyExportField")
+		case "key":
+			out.Values[i] = ec._SurveyExportField_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._SurveyExportField_title(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyExportRowImplementors = []string{"SurveyExportRow"}
+
+func (ec *executionContext) _SurveyExportRow(ctx context.Context, sel ast.SelectionSet, obj *SurveyExportRow) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, surveyExportRowImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyExportRow")
+		case "answer":
+			out.Values[i] = ec._SurveyExportRow_answer(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "values":
+			out.Values[i] = ec._SurveyExportRow_values(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyExportValueImplementors = []string{"SurveyExportValue"}
+
+func (ec *executionContext) _SurveyExportValue(ctx context.Context, sel ast.SelectionSet, obj *SurveyExportValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, surveyExportValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyExportValue")
+		case "key":
+			out.Values[i] = ec._SurveyExportValue_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "value":
+			out.Values[i] = ec._SurveyExportValue_value(ctx, field, obj)
+		case "text":
+			out.Values[i] = ec._SurveyExportValue_text(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5622,6 +6288,145 @@ func (ec *executionContext) unmarshalNSurveyCreateInput2map(ctx context.Context,
 		return nil, nil
 	}
 	return v.(map[string]interface{}), nil
+}
+
+func (ec *executionContext) marshalNSurveyExportField2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportField(ctx context.Context, sel ast.SelectionSet, v SurveyExportField) graphql.Marshaler {
+	return ec._SurveyExportField(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSurveyExportField2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportField(ctx context.Context, sel ast.SelectionSet, v []*SurveyExportField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSurveyExportField2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNSurveyExportField2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportField(ctx context.Context, sel ast.SelectionSet, v *SurveyExportField) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SurveyExportField(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSurveyExportRow2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportRow(ctx context.Context, sel ast.SelectionSet, v SurveyExportRow) graphql.Marshaler {
+	return ec._SurveyExportRow(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSurveyExportRow2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportRow(ctx context.Context, sel ast.SelectionSet, v []*SurveyExportRow) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSurveyExportRow2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportRow(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNSurveyExportRow2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportRow(ctx context.Context, sel ast.SelectionSet, v *SurveyExportRow) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SurveyExportRow(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSurveyExportValue2ᚕᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportValue(ctx context.Context, sel ast.SelectionSet, v []*SurveyExportValue) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOSurveyExportValue2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportValue(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) unmarshalNSurveyFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyFilterType(ctx context.Context, v interface{}) (SurveyFilterType, error) {
@@ -6323,6 +7128,40 @@ func (ec *executionContext) unmarshalOSurveyAnswerSortType2ᚖgithubᚗcomᚋjak
 	}
 	res, err := ec.unmarshalOSurveyAnswerSortType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyAnswerSortType(ctx, v)
 	return &res, err
+}
+
+func (ec *executionContext) marshalOSurveyExport2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExport(ctx context.Context, sel ast.SelectionSet, v SurveyExport) graphql.Marshaler {
+	return ec._SurveyExport(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOSurveyExport2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExport(ctx context.Context, sel ast.SelectionSet, v *SurveyExport) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SurveyExport(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSurveyExportFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportFilterType(ctx context.Context, v interface{}) (SurveyExportFilterType, error) {
+	return ec.unmarshalInputSurveyExportFilterType(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOSurveyExportFilterType2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportFilterType(ctx context.Context, v interface{}) (*SurveyExportFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOSurveyExportFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportFilterType(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOSurveyExportValue2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportValue(ctx context.Context, sel ast.SelectionSet, v SurveyExportValue) graphql.Marshaler {
+	return ec._SurveyExportValue(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOSurveyExportValue2ᚖgithubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyExportValue(ctx context.Context, sel ast.SelectionSet, v *SurveyExportValue) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SurveyExportValue(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSurveyFilterType2githubᚗcomᚋjakubknejzlikᚋsurveyjsᚑgraphqlᚑapiᚋgenᚐSurveyFilterType(ctx context.Context, v interface{}) (SurveyFilterType, error) {

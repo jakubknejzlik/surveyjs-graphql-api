@@ -3,11 +3,13 @@ package gen
 type key int
 
 const (
-	KeyPrincipalID      key    = iota
-	KeyLoaders          key    = iota
-	KeyExecutableSchema key    = iota
-	KeyJWTClaims        key    = iota
-	SchemaSDL           string = `scalar Time
+	KeyPrincipalID         key    = iota
+	KeyLoaders             key    = iota
+	KeyExecutableSchema    key    = iota
+	KeyJWTClaims           key    = iota
+	KeyMutationTransaction key    = iota
+	KeyMutationEvents      key    = iota
+	SchemaSDL              string = `scalar Time
 
 type Query {
   survey(id: ID, q: String, filter: SurveyFilterType): Survey
@@ -30,6 +32,36 @@ type Mutation {
 enum ObjectSortType {
   ASC
   DESC
+}
+
+type SurveyExportField {
+  key: String!
+  title: String
+}
+
+type SurveyExportRow {
+  answer: SurveyAnswer!
+  values: [SurveyExportValue]!
+}
+
+type SurveyExportValue {
+  key: String!
+  value: String
+  text: String
+}
+
+type SurveyExport {
+  fields: [SurveyExportField!]!
+  rows: [SurveyExportRow!]!
+}
+
+input SurveyExportFilterType {
+  surveyID: ID
+  answerIDs: [ID!]
+}
+
+extend type Query {
+  surveyExport(filter: SurveyExportFilterType): SurveyExport
 }
 
 type Survey @key(fields: "id") {

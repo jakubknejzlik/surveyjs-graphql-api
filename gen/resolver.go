@@ -16,7 +16,7 @@ type ResolutionHandlers struct {
 	QuerySurvey      func(ctx context.Context, r *GeneratedResolver, opts QuerySurveyHandlerOptions) (*Survey, error)
 	QuerySurveys     func(ctx context.Context, r *GeneratedResolver, opts QuerySurveysHandlerOptions) (*SurveyResultType, error)
 
-	SurveyAnswers func(ctx context.Context, r *GeneratedSurveyResolver, obj *Survey) (res []*SurveyAnswer, err error)
+	SurveyAnswers func(ctx context.Context, r *GeneratedResolver, obj *Survey) (res []*SurveyAnswer, err error)
 
 	CreateSurveyAnswer     func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *SurveyAnswer, err error)
 	UpdateSurveyAnswer     func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *SurveyAnswer, err error)
@@ -25,7 +25,7 @@ type ResolutionHandlers struct {
 	QuerySurveyAnswer      func(ctx context.Context, r *GeneratedResolver, opts QuerySurveyAnswerHandlerOptions) (*SurveyAnswer, error)
 	QuerySurveyAnswers     func(ctx context.Context, r *GeneratedResolver, opts QuerySurveyAnswersHandlerOptions) (*SurveyAnswerResultType, error)
 
-	SurveyAnswerSurvey func(ctx context.Context, r *GeneratedSurveyAnswerResolver, obj *SurveyAnswer) (res *Survey, err error)
+	SurveyAnswerSurvey func(ctx context.Context, r *GeneratedResolver, obj *SurveyAnswer) (res *Survey, err error)
 }
 
 func DefaultResolutionHandlers() ResolutionHandlers {

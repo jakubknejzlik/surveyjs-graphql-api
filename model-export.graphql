@@ -1,0 +1,27 @@
+type SurveyExportField {
+  key: String!
+  title: String
+}
+type SurveyExportRow {
+  answer: SurveyAnswer!
+  values: [SurveyExportValue]!
+}
+type SurveyExportValue {
+  key: String!
+  value: String
+  text: String
+}
+
+type SurveyExport {
+  fields: [SurveyExportField!]!
+  rows: [SurveyExportRow!]!
+}
+
+input SurveyExportFilterType {
+  surveyID: ID
+  answerIDs: [ID!]
+}
+
+extend type Query {
+  surveyExport(filter: SurveyExportFilterType): SurveyExport
+}

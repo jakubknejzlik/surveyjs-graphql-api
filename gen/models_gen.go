@@ -98,6 +98,32 @@ type SurveyAnswerSortType struct {
 	Survey    *SurveySortType `json:"survey"`
 }
 
+type SurveyExport struct {
+	Fields []*SurveyExportField `json:"fields"`
+	Rows   []*SurveyExportRow   `json:"rows"`
+}
+
+type SurveyExportField struct {
+	Key   string  `json:"key"`
+	Title *string `json:"title"`
+}
+
+type SurveyExportFilterType struct {
+	SurveyID  *string  `json:"surveyID"`
+	AnswerIDs []string `json:"answerIDs"`
+}
+
+type SurveyExportRow struct {
+	Answer *SurveyAnswer        `json:"answer"`
+	Values []*SurveyExportValue `json:"values"`
+}
+
+type SurveyExportValue struct {
+	Key   string  `json:"key"`
+	Value *string `json:"value"`
+	Text  *string `json:"text"`
+}
+
 type SurveyFilterType struct {
 	And           []*SurveyFilterType     `json:"AND"`
 	Or            []*SurveyFilterType     `json:"OR"`
