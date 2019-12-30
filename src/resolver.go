@@ -18,29 +18,54 @@ func New(db *gen.DB, ec *events.EventController) *Resolver {
 }
 
 func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExportFilterType) (export *gen.SurveyExport, err error) {
-	answer, err := r.Handlers.QuerySurveyAnswer(ctx, r.GeneratedResolver, gen.QuerySurveyAnswerHandlerOptions{
-		ID: &filter.AnswerIDs[0],
+
+	answersResult, err := r.Handlers.QuerySurveyAnswers(ctx, r.GeneratedResolver, gen.QuerySurveyAnswersHandlerOptions{
+		Filter: &gen.SurveyAnswerFilterType{
+			IDIn: filter.AnswerIDs,
+		},
 	})
 	if err != nil {
 		return
 	}
-
-	survey, err := r.Handlers.SurveyAnswerSurvey(ctx, r.GeneratedResolver, answer)
+	var answers []*gen.SurveyAnswer
+	err = answersResult.GetItems(ctx, r.DB.Query(), gen.GetItemsOptions{}, &answers)
 	if err != nil {
 		return
 	}
 
-	fields, choicesMap, err := getSurveyFields(ctx, survey)
-	if err != nil {
-		return
-	}
-
+	surveyMap := map[string]*gen.Survey{}
 	rows := []*gen.SurveyExportRow{}
-	row, err := getSurveyAnswerValues(ctx, answer, choicesMap)
-	if err != nil {
-		return
+
+	fields := []*gen.SurveyExportField{}
+	for _, answer := range answers {
+		survey, surveyLoaded := surveyMap[*answer.SurveyID]
+
+		if !surveyLoaded {
+			survey, err = r.Handlers.SurveyAnswerSurvey(ctx, r.GeneratedResolver, answer)
+			if err != nil {
+				return
+			}
+			surveyMap[*answer.SurveyID] = survey
+		}
+
+		_fields, choicesMap, _err := getSurveyFields(ctx, survey)
+		if _err != nil {
+			err = _err
+			return
+		}
+		if !surveyLoaded {
+			for _, field := range _fields {
+				fields = append(fields, field)
+			}
+		}
+
+		row, _err := getSurveyAnswerValues(ctx, answer, choicesMap)
+		if _err != nil {
+			err = _err
+			return
+		}
+		rows = append(rows, row)
 	}
-	rows = append(rows, row)
 
 	export = &gen.SurveyExport{Rows: rows, Fields: fields}
 	return
