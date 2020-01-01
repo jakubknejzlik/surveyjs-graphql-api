@@ -10,6 +10,6 @@ require (
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/jinzhu/gorm v1.9.10
 	github.com/mitchellh/mapstructure v0.0.0-20180203102830-a4e142e9c047
-	github.com/novacloudcz/graphql-orm v0.1.24
+	github.com/novacloudcz/graphql-orm v0.1.26
 	github.com/vektah/gqlparser v1.1.2
 )

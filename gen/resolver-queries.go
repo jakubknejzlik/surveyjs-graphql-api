@@ -25,15 +25,22 @@ func (r *GeneratedQueryResolver) Survey(ctx context.Context, id *string, q *stri
 	return r.Handlers.QuerySurvey(ctx, r.GeneratedResolver, opts)
 }
 func QuerySurveyHandler(ctx context.Context, r *GeneratedResolver, opts QuerySurveyHandlerOptions) (*Survey, error) {
+	selection := []ast.Selection{}
+	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
+		selection = append(selection, f.Field)
+	}
+	selectionSet := ast.SelectionSet(selection)
+
 	query := SurveyQueryFilter{opts.Q}
 	offset := 0
 	limit := 1
 	rt := &SurveyResultType{
 		EntityResultType: EntityResultType{
-			Offset: &offset,
-			Limit:  &limit,
-			Query:  &query,
-			Filter: opts.Filter,
+			Offset:       &offset,
+			Limit:        &limit,
+			Query:        &query,
+			Filter:       opts.Filter,
+			SelectionSet: &selectionSet,
 		},
 	}
 	qb := r.DB.Query()
@@ -168,15 +175,22 @@ func (r *GeneratedQueryResolver) SurveyAnswer(ctx context.Context, id *string, q
 	return r.Handlers.QuerySurveyAnswer(ctx, r.GeneratedResolver, opts)
 }
 func QuerySurveyAnswerHandler(ctx context.Context, r *GeneratedResolver, opts QuerySurveyAnswerHandlerOptions) (*SurveyAnswer, error) {
+	selection := []ast.Selection{}
+	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
+		selection = append(selection, f.Field)
+	}
+	selectionSet := ast.SelectionSet(selection)
+
 	query := SurveyAnswerQueryFilter{opts.Q}
 	offset := 0
 	limit := 1
 	rt := &SurveyAnswerResultType{
 		EntityResultType: EntityResultType{
-			Offset: &offset,
-			Limit:  &limit,
-			Query:  &query,
-			Filter: opts.Filter,
+			Offset:       &offset,
+			Limit:        &limit,
+			Query:        &query,
+			Filter:       opts.Filter,
+			SelectionSet: &selectionSet,
 		},
 	}
 	qb := r.DB.Query()

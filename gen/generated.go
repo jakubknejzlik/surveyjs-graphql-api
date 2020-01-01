@@ -721,8 +721,6 @@ type SurveyAnswer {
   createdBy: ID
 }
 
-union _Entity = Survey | SurveyAnswer
-
 input SurveyCreateInput {
   id: ID
   name: String
@@ -927,6 +925,8 @@ type SurveyAnswerResultType {
 type _Service {
   sdl: String
 }
+
+union _Entity = Survey | SurveyAnswer
 `},
 )
 

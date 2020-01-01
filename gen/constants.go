@@ -88,8 +88,6 @@ type SurveyAnswer @key(fields: "id") {
   createdBy: ID
 }
 
-union _Entity = Survey | SurveyAnswer
-
 input SurveyCreateInput {
   id: ID
   name: String
