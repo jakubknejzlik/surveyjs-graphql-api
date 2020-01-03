@@ -9,13 +9,13 @@ import (
 
 func getSurveyAnswerValues(ctx context.Context, answer *gen.SurveyAnswer, choicesMap SurveyChoicesMap) (row *gen.SurveyExportRow, err error) {
 	answers := map[string]*string{}
+	values := []*gen.SurveyExportValue{}
 	if answer.Content != nil {
 		err = json.Unmarshal([]byte(*answer.Content), &answers)
 		if err != nil {
 			return
 		}
 
-		values := []*gen.SurveyExportValue{}
 		for key, value := range answers {
 			var text string
 			if value != nil && choicesMap[key] != nil {
@@ -27,11 +27,10 @@ func getSurveyAnswerValues(ctx context.Context, answer *gen.SurveyAnswer, choice
 				Text:  &text,
 			})
 		}
-
-		row = &gen.SurveyExportRow{
-			Answer: answer,
-			Values: values,
-		}
+	}
+	row = &gen.SurveyExportRow{
+		Answer: answer,
+		Values: values,
 	}
 	return
 }
