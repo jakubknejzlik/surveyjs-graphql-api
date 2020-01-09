@@ -99,8 +99,7 @@ type SurveyAnswerSortType struct {
 }
 
 type SurveyExport struct {
-	Fields []*SurveyExportField `json:"fields"`
-	Rows   []*SurveyExportRow   `json:"rows"`
+	Items []*SurveyExportItem `json:"items"`
 }
 
 type SurveyExportField struct {
@@ -111,6 +110,12 @@ type SurveyExportField struct {
 type SurveyExportFilterType struct {
 	SurveyID  *string  `json:"surveyID"`
 	AnswerIDs []string `json:"answerIDs"`
+}
+
+type SurveyExportItem struct {
+	Survey *Survey              `json:"survey"`
+	Fields []*SurveyExportField `json:"fields"`
+	Rows   []*SurveyExportRow   `json:"rows"`
 }
 
 type SurveyExportRow struct {

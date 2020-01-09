@@ -51,6 +51,11 @@ type SurveyExportValue {
 }
 
 type SurveyExport {
+  items: [SurveyExportItem!]!
+}
+
+type SurveyExportItem {
+  survey: Survey!
   fields: [SurveyExportField!]!
   rows: [SurveyExportRow!]!
 }
