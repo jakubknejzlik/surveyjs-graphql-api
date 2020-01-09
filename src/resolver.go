@@ -34,9 +34,9 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 	}
 
 	surveyMap := map[string]*gen.Survey{}
-	rows := []*gen.SurveyExportRow{}
+	surveyFields := map[string][]*gen.SurveyExportField{}
+	surveyRows := map[string][]*gen.SurveyExportRow{}
 
-	fields := []*gen.SurveyExportField{}
 	for _, answer := range answers {
 		survey, surveyLoaded := surveyMap[*answer.SurveyID]
 
@@ -46,6 +46,7 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 				return
 			}
 			surveyMap[*answer.SurveyID] = survey
+			surveyRows[*answer.SurveyID] = []*gen.SurveyExportRow{}
 		}
 
 		_fields, choicesMap, _err := getSurveyFields(ctx, survey)
@@ -55,7 +56,7 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 		}
 		if !surveyLoaded {
 			for _, field := range _fields {
-				fields = append(fields, field)
+				surveyFields[*answer.SurveyID] = append(surveyFields[*answer.SurveyID], field)
 			}
 		}
 
@@ -64,9 +65,20 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 			err = _err
 			return
 		}
-		rows = append(rows, row)
+		surveyRows[*answer.SurveyID] = append(surveyRows[*answer.SurveyID], row)
+		// rows = append(rows, row)
 	}
 
-	export = &gen.SurveyExport{Rows: rows, Fields: fields}
+	items := []*gen.SurveyExportItem{}
+	for surveyID, survey := range surveyMap {
+		items = append(items, &gen.SurveyExportItem{
+			Survey: survey,
+			Fields: surveyFields[surveyID],
+			Rows:   surveyRows[surveyID],
+		})
+	}
+
+	// item := &gen.SurveyExportItem{Rows: rows, Fields: fields}
+	export = &gen.SurveyExport{Items: items}
 	return
 }
