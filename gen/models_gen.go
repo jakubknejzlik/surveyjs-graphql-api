@@ -126,7 +126,6 @@ type SurveyExportRow struct {
 type SurveyExportValue struct {
 	Key   string  `json:"key"`
 	Value *string `json:"value"`
-	Text  *string `json:"text"`
 }
 
 type SurveyFilterType struct {

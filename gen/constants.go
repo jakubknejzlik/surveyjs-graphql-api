@@ -47,7 +47,6 @@ type SurveyExportRow {
 type SurveyExportValue {
   key: String!
   value: String
-  text: String
 }
 
 type SurveyExport {

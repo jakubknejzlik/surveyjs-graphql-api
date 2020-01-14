@@ -7,8 +7,8 @@ import (
 	"github.com/jakubknejzlik/surveyjs-graphql-api/gen"
 )
 
-func getSurveyAnswerValues(ctx context.Context, answer *gen.SurveyAnswer, choicesMap SurveyChoicesMap) (row *gen.SurveyExportRow, err error) {
-	answers := map[string]*string{}
+func getSurveyAnswerValues(ctx context.Context, answer *gen.SurveyAnswer) (row *gen.SurveyExportRow, err error) {
+	answers := map[string]*json.RawMessage{}
 	values := []*gen.SurveyExportValue{}
 	if answer.Content != nil {
 		err = json.Unmarshal([]byte(*answer.Content), &answers)
@@ -17,14 +17,16 @@ func getSurveyAnswerValues(ctx context.Context, answer *gen.SurveyAnswer, choice
 		}
 
 		for key, value := range answers {
-			var text string
-			if value != nil && choicesMap[key] != nil {
-				text = choicesMap[key][*value]
+			_value := ""
+			err := json.Unmarshal(*value, &_value)
+			if err != nil {
+				values := []string{}
+				json.Unmarshal(*value, &values)
+				_value = values[0]
 			}
 			values = append(values, &gen.SurveyExportValue{
 				Key:   key,
-				Value: value,
-				Text:  &text,
+				Value: &_value,
 			})
 		}
 	}

@@ -120,7 +120,6 @@ type ComplexityRoot struct {
 
 	SurveyExportValue struct {
 		Key   func(childComplexity int) int
-		Text  func(childComplexity int) int
 		Value func(childComplexity int) int
 	}
 
@@ -553,13 +552,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SurveyExportValue.Key(childComplexity), true
 
-	case "SurveyExportValue.text":
-		if e.complexity.SurveyExportValue.Text == nil {
-			break
-		}
-
-		return e.complexity.SurveyExportValue.Text(childComplexity), true
-
 	case "SurveyExportValue.value":
 		if e.complexity.SurveyExportValue.Value == nil {
 			break
@@ -699,7 +691,6 @@ type SurveyExportRow {
 type SurveyExportValue {
   key: String!
   value: String
-  text: String
 }
 
 type SurveyExport {
@@ -3041,40 +3032,6 @@ func (ec *executionContext) _SurveyExportValue_value(ctx context.Context, field 
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _SurveyExportValue_text(ctx context.Context, field graphql.CollectedField, obj *SurveyExportValue) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "SurveyExportValue",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Text, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5856,8 +5813,6 @@ func (ec *executionContext) _SurveyExportValue(ctx context.Context, sel ast.Sele
 			}
 		case "value":
 			out.Values[i] = ec._SurveyExportValue_value(ctx, field, obj)
-		case "text":
-			out.Values[i] = ec._SurveyExportValue_text(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

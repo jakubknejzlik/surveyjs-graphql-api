@@ -49,7 +49,7 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 			surveyRows[*answer.SurveyID] = []*gen.SurveyExportRow{}
 		}
 
-		_fields, choicesMap, _err := getSurveyFields(ctx, survey)
+		_fields, _err := getSurveyFields(ctx, survey)
 		if _err != nil {
 			err = _err
 			return
@@ -60,7 +60,7 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 			}
 		}
 
-		row, _err := getSurveyAnswerValues(ctx, answer, choicesMap)
+		row, _err := getSurveyAnswerValues(ctx, answer)
 		if _err != nil {
 			err = _err
 			return
