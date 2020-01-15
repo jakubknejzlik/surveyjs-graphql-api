@@ -14,9 +14,9 @@ type SurveyChoicesMap = map[string]map[string]string
 // 	Text string
 // }
 type SurveyPageElement struct {
-	Type  string
-	Name  string
-	Title *string
+	Type string
+	Name string
+	// Title *string
 	// Choices []SurveyPageElementChoice
 }
 type SurveyPage struct {
