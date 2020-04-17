@@ -30,7 +30,7 @@ type SurveyContent struct {
 func getSurveyFields(ctx context.Context, survey *gen.Survey) (fields []*gen.SurveyExportField, err error) {
 	fields = []*gen.SurveyExportField{}
 	// choicesMap = map[string]map[string]string{}
-	if survey.Content != nil {
+	if survey != nil && survey.Content != nil {
 		content := SurveyContent{}
 		err = json.Unmarshal([]byte(*survey.Content), &content)
 		if err != nil {
