@@ -45,28 +45,32 @@ func (r *QueryResolver) SurveyExport(ctx context.Context, filter *gen.SurveyExpo
 			if err != nil {
 				return
 			}
-			surveyMap[*answer.SurveyID] = survey
-			surveyRows[*answer.SurveyID] = []*gen.SurveyExportRow{}
-		}
-
-		_fields, _err := getSurveyFields(ctx, survey)
-		if _err != nil {
-			err = _err
-			return
-		}
-		if !surveyLoaded {
-			for _, field := range _fields {
-				surveyFields[*answer.SurveyID] = append(surveyFields[*answer.SurveyID], field)
+			if survey != nil {
+				surveyMap[*answer.SurveyID] = survey
+				surveyRows[*answer.SurveyID] = []*gen.SurveyExportRow{}
 			}
 		}
 
-		row, _err := getSurveyAnswerValues(ctx, answer)
-		if _err != nil {
-			err = _err
-			return
+		if survey != nil {
+			_fields, _err := getSurveyFields(ctx, survey)
+			if _err != nil {
+				err = _err
+				return
+			}
+			if !surveyLoaded {
+				for _, field := range _fields {
+					surveyFields[*answer.SurveyID] = append(surveyFields[*answer.SurveyID], field)
+				}
+			}
+
+			row, _err := getSurveyAnswerValues(ctx, answer)
+			if _err != nil {
+				err = _err
+				return
+			}
+			surveyRows[*answer.SurveyID] = append(surveyRows[*answer.SurveyID], row)
+			// rows = append(rows, row)
 		}
-		surveyRows[*answer.SurveyID] = append(surveyRows[*answer.SurveyID], row)
-		// rows = append(rows, row)
 	}
 
 	items := []*gen.SurveyExportItem{}
